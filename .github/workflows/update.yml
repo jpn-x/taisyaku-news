@@ -1,0 +1,43 @@
+name: Update digest
+
+on:
+  schedule:
+    # JST 17:15 / 19:15（平日）と JST 翌朝 07:15
+    - cron: '15 8 * * 1-5'
+    - cron: '15 10 * * 1-5'
+    - cron: '15 22 * * 0-4'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-digest
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+
+      - name: Scrape, summarize, build site
+        run: python scripts/update.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          if ! git diff --cached --quiet; then
+            git commit -m "update: $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M JST')"
+            git push
+          fi
