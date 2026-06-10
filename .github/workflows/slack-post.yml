@@ -1,0 +1,39 @@
+name: Slack morning post
+
+on:
+  schedule:
+    # JST 火〜土 8:00（前営業日の夕方発表分を投稿）
+    - cron: '0 23 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: slack-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Post latest digest to Slack
+        run: python scripts/post_slack.py
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Commit posted-state if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/slack_posted.json
+          if ! git diff --cached --quiet; then
+            git commit -m "slack: posted $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M JST')"
+            git push
+          fi
