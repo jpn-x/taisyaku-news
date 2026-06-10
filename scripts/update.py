@@ -228,6 +228,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>日証金 貸借取引情報ダイジェスト</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0a3d6e">
 <style>
   :root {{
     --bg: #f4f6f9; --card: #ffffff; --ink: #1a2433; --sub: #5b6b7f;
@@ -260,6 +265,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   ul.points {{ margin: 8px 0 0; padding-left: 20px; }}
   ul.points li {{ margin: 3px 0; font-size: .9rem; }}
   .pdf-link {{ font-size: .8rem; }}
+  .new-badge {{ display: inline-block; background: #e0322e; color: #fff; font-size: .72rem;
+                font-weight: 700; border-radius: 6px; padding: 2px 9px; margin-left: 10px;
+                letter-spacing: .8px; vertical-align: 2px; animation: pulse 1.8s ease-in-out infinite; }}
+  @keyframes pulse {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: .5; }} }}
+  .card.latest {{ border-left: 4px solid #e0322e; }}
   footer {{ text-align: center; color: var(--sub); font-size: .78rem; padding: 30px 0 40px; }}
   footer a {{ color: var(--accent); }}
   .hidden {{ display: none; }}
@@ -308,9 +318,9 @@ def esc(s: str) -> str:
              .replace(">", "&gt;").replace('"', "&quot;"))
 
 
-def render_item(item: dict) -> str:
+def render_item(item: dict, latest: bool = False) -> str:
     s = item.get("summary") or {}
-    parts = [f'<div class="card">']
+    parts = [f'<div class="card{" latest" if latest else ""}">']
     parts.append(f'<h3><a href="{esc(item["url"])}" target="_blank" rel="noopener">{esc(item["title"])}</a></h3>')
     meta = f'<span class="chip">{esc(item.get("label") or "お知らせ")}</span>'
     meta += f'<a class="pdf-link" href="{esc(item["url"])}" target="_blank" rel="noopener">原本PDF</a>'
@@ -337,8 +347,10 @@ def render_item(item: dict) -> str:
 
 def generate_site(items: list[dict]) -> None:
     items = sorted(items, key=lambda x: x["date"], reverse=True)
+    latest_date = items[0]["date"] if items else ""
     chunks, current_date = [], None
     for item in items:
+        is_latest = item["date"] == latest_date
         if item["date"] != current_date:
             current_date = item["date"]
             try:
@@ -346,8 +358,9 @@ def generate_site(items: list[dict]) -> None:
                 label = f'{d.year}年{d.month:02d}月{d.day:02d}日（{"月火水木金土日"[d.weekday()]}）'
             except ValueError:
                 label = current_date
-            chunks.append(f'<div class="day">{label}</div>')
-        chunks.append(render_item(item))
+            badge = '<span class="new-badge">NEW</span>' if is_latest else ""
+            chunks.append(f'<div class="day">{label}{badge}</div>')
+        chunks.append(render_item(item, latest=is_latest))
     html = HTML_TEMPLATE.format(
         updated=datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
         items="\n".join(chunks),
