@@ -19,8 +19,13 @@
          font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; line-height: 1.65; }
   header { background: linear-gradient(135deg, #0a3d6e, #0a5ca8); color: #fff; padding: 28px 16px; }
   .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+  .header-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   header h1 { margin: 0; font-size: 1.45rem; }
   header p { margin: 6px 0 0; opacity: .85; font-size: .85rem; }
+  .reload-btn { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4);
+                color: #fff; border-radius: 7px; padding: 5px 14px; font-size: .82rem;
+                cursor: pointer; white-space: nowrap; letter-spacing: .3px; }
+  .reload-btn:hover { background: rgba(255,255,255,.3); }
   .toolbar { display: flex; gap: 10px; margin: 18px auto; max-width: 880px; padding: 0 16px; }
   .toolbar input { flex: 1; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px;
                     font-size: .95rem; }
@@ -54,8 +59,11 @@
 <body>
 <header>
   <div class="wrap">
-    <h1>日証金 貸借取引情報ダイジェスト</h1>
-    <p>日本証券金融のお知らせ（増担保金徴収措置・貸借取引規制など）のPDFを自動要約 ｜ 最終更新: 2026-06-11 19:07 JST</p>
+    <div class="header-top">
+      <h1>日証金 貸借取引情報ダイジェスト</h1>
+      <button class="reload-btn" onclick="location.href=location.pathname+'?v='+Date.now()">&#8635; 強制リロード</button>
+    </div>
+    <p>日本証券金融のお知らせ（増担保金徴収措置・貸借取引規制など）のPDFを自動要約 ｜ 最終更新: 2026-06-11 19:09 JST</p>
   </div>
 </header>
 <div class="toolbar">
