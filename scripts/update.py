@@ -120,10 +120,47 @@ def mashitanpo_summary(text: str, tables: list) -> dict:
     return {"stocks": stocks, "points": points, "method": "rule"}
 
 
+def seigen_summary(text: str, tables: list) -> dict:
+    """「銘柄別制限措置」PDF専用パーサー。テキストからセクション見出しを検出して対応付ける。"""
+    flat = re.sub(r"\s+", "", text)
+    heading_re = re.compile(
+        r"(?:"
+        r"貸株利用等に関する注意喚起の通知"
+        r"|融資利用等に関する注意喚起の通知"
+        r"|申込停止措置の実施[（(][^）)]{2,40}[）)]"
+        r"|申込停止措置の解除[（(][^）)]{2,40}[）)]"
+        r"|融資停止措置の実施[（(][^）)]{2,40}[）)]"
+        r"|融資停止措置の解除[（(][^）)]{2,40}[）)]"
+        r")"
+    )
+    headings = [m.group(0) for m in heading_re.finditer(flat)]
+    stocks, points = [], []
+    for i, table in enumerate(tables):
+        rows = _table_rows(table) or []
+        heading = headings[i] if i < len(headings) else None
+        if not rows:
+            if heading:
+                points.append(f"{heading}: 該当なし")
+            continue
+        if heading:
+            brief = "、".join(f"{n}（{c}）" for c, n, _ in rows[:4])
+            if len(rows) > 4:
+                brief += f" ほか{len(rows) - 4}銘柄"
+            points.append(f"{heading}: {brief}")
+        for code, name, note in rows:
+            st: dict = {"code": code, "name": name, "note": note}
+            if heading:
+                st["section"] = heading
+            stocks.append(st)
+    return {"stocks": stocks, "points": points, "method": "rule"}
+
+
 def rule_based_summary(title: str, text: str, tables: list) -> dict:
     """APIキーなしでも動くフォールバック要約。"""
     if "増担保金徴収措置の実施等" in title and len(tables) >= 3:
         return mashitanpo_summary(text, tables)
+    if "銘柄別制限措置" in title and tables:
+        return seigen_summary(text, tables)
 
     stocks, seen_codes = [], set()
 
@@ -271,6 +308,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   td.code {{ font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent); white-space: nowrap; }}
   ul.points {{ margin: 8px 0 0; padding-left: 20px; }}
   ul.points li {{ margin: 3px 0; font-size: .9rem; }}
+  .sec-label {{ font-size: .82rem; font-weight: 700; color: var(--accent);
+               margin: 10px 0 3px; border-left: 3px solid var(--accent); padding-left: 8px; }}
   .pdf-link {{ font-size: .8rem; }}
   .new-badge {{ display: inline-block; background: #e0322e; color: #fff; font-size: .72rem;
                 font-weight: 700; border-radius: 6px; padding: 2px 9px; margin-left: 10px;
@@ -339,12 +378,34 @@ def render_item(item: dict, latest: bool = False) -> str:
     parts.append(f'<div class="meta">{meta}</div>')
     stocks = s.get("stocks") or []
     if stocks:
-        rows = "".join(
-            f'<tr><td class="code">{esc(st.get("code", ""))}</td>'
-            f'<td>{esc(st.get("name", ""))}</td>'
-            f'<td>{esc(st.get("note", ""))}</td></tr>'
-            for st in stocks)
-        parts.append(f'<table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr>{rows}</table>')
+        if any(st.get("section") for st in stocks):
+            # セクション見出し付きでグループ化
+            cur_sec, cur_rows, groups = None, [], []
+            for st in stocks:
+                sec = st.get("section") or ""
+                if sec != cur_sec:
+                    if cur_rows:
+                        groups.append((cur_sec, cur_rows))
+                    cur_sec, cur_rows = sec, []
+                cur_rows.append(st)
+            if cur_rows:
+                groups.append((cur_sec, cur_rows))
+            for sec_name, sec_stocks in groups:
+                if sec_name:
+                    parts.append(f'<div class="sec-label">{esc(sec_name)}</div>')
+                rows = "".join(
+                    f'<tr><td class="code">{esc(st.get("code",""))}</td>'
+                    f'<td>{esc(st.get("name",""))}</td>'
+                    f'<td>{esc(st.get("note",""))}</td></tr>'
+                    for st in sec_stocks)
+                parts.append(f'<table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr>{rows}</table>')
+        else:
+            rows = "".join(
+                f'<tr><td class="code">{esc(st.get("code", ""))}</td>'
+                f'<td>{esc(st.get("name", ""))}</td>'
+                f'<td>{esc(st.get("note", ""))}</td></tr>'
+                for st in stocks)
+            parts.append(f'<table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr>{rows}</table>')
     points = s.get("points") or []
     if points:
         lis = "".join(f"<li>{esc(p)}</li>" for p in points)
