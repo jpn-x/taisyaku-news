@@ -240,7 +240,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }}
   * {{ box-sizing: border-box; }}
   body {{ margin: 0; background: var(--bg); color: var(--ink);
-         font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; line-height: 1.65; }}
+         font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; line-height: 1.65;
+         caret-color: transparent; }}
+  input, textarea, [contenteditable] {{ caret-color: auto; }}
   header {{ background: linear-gradient(135deg, #0a3d6e, #0a5ca8); color: #fff; padding: 28px 16px; }}
   .wrap {{ max-width: 880px; margin: 0 auto; padding: 0 16px; }}
   .header-top {{ display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }}
