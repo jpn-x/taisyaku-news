@@ -126,8 +126,11 @@ def seigen_summary(text: str, tables: list) -> dict:
     heading_re = re.compile(
         r"(?:"
         r"貸株利用等に関する注意喚起の通知"
+        r"|貸株利用等に関する注意喚起の取消"
         r"|融資利用等に関する注意喚起の通知"
+        r"|融資利用等に関する注意喚起の取消"
         r"|申込停止措置の実施[（(][^）)]{2,40}[）)]"
+        r"|申込停止措置の一部解除[（(][^）)]{2,40}[）)]"
         r"|申込停止措置の解除[（(][^）)]{2,40}[）)]"
         r"|融資停止措置の実施[（(][^）)]{2,40}[）)]"
         r"|融資停止措置の解除[（(][^）)]{2,40}[）)]"
@@ -257,6 +260,32 @@ def summarize(title: str, text: str, tables: list) -> dict:
     return claude_summary(title, text) or rule_based_summary(title, text, tables)
 
 
+# ---------------------------------------------------------------- category
+
+def map_category(title: str, section: str, note: str) -> str:
+    """PDFタイトル・セクション見出し・補足から措置カテゴリに分類。"""
+    # 増担保金徴収措置専用PDF（noteに区分が入る）
+    if "増担保金徴収措置" in title:
+        return "増担保解除" if "解除" in (note or "") else "増担保実施"
+    t = title or ""
+    title_is_release = "解除" in t or "取消" in t
+    # セクション見出しがある場合
+    s = section or ""
+    if s:
+        if "解除" in s or "取消" in s:
+            return "売り禁解除"
+        # 「通知」セクションが解除PDFに含まれる場合は解除扱い
+        if "通知" in s and title_is_release:
+            return "売り禁解除"
+        return "売り禁実施"
+    # セクションなし: タイトルで判定（旧形式）
+    if title_is_release:
+        return "売り禁解除"
+    if "実施" in t or "注意喚起" in t:
+        return "売り禁実施"
+    return "その他"
+
+
 # ---------------------------------------------------------------- site
 
 HTML_TEMPLATE = """<!DOCTYPE html>
@@ -280,6 +309,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
          font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; line-height: 1.65;
          caret-color: transparent; }}
   input, textarea, [contenteditable] {{ caret-color: auto; }}
+
+  /* Header */
   header {{ background: linear-gradient(135deg, #0a3d6e, #0a5ca8); color: #fff; padding: 28px 16px; }}
   .wrap {{ max-width: 880px; margin: 0 auto; padding: 0 16px; }}
   .header-top {{ display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }}
@@ -287,11 +318,87 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   header p {{ margin: 6px 0 0; opacity: .85; font-size: .85rem; }}
   .reload-btn {{ background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4);
                 color: #fff; border-radius: 7px; padding: 5px 14px; font-size: .82rem;
-                cursor: pointer; white-space: nowrap; letter-spacing: .3px; }}
+                cursor: pointer; white-space: nowrap; letter-spacing: .3px; font-family: inherit; }}
   .reload-btn:hover {{ background: rgba(255,255,255,.3); }}
-  .toolbar {{ display: flex; gap: 10px; margin: 18px auto; max-width: 880px; padding: 0 16px; }}
-  .toolbar input {{ flex: 1; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px;
-                    font-size: .95rem; }}
+
+  /* Month tabs (sticky) */
+  .month-tabs-wrap {{
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  }}
+  .month-tabs {{
+    max-width: 880px; margin: 0 auto; padding: 0 12px;
+    display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+  }}
+  .month-tabs::-webkit-scrollbar {{ display: none; }}
+  .tab {{
+    flex-shrink: 0; background: none; border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 13px; font-size: .85rem; cursor: pointer;
+    color: var(--sub); white-space: nowrap; font-family: inherit; transition: color .15s;
+  }}
+  .tab:hover {{ color: var(--accent); }}
+  .tab.active {{ color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }}
+
+  /* Search + Filter Row */
+  .search-wrap {{ max-width: 880px; margin: 14px auto 0; padding: 0 16px; }}
+  .search-row {{ display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }}
+  #codeSearch {{
+    width: 200px; padding: 8px 12px;
+    border: 1.5px solid var(--line); border-radius: 7px;
+    font-size: .9rem; font-family: inherit;
+  }}
+  #codeSearch:focus {{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(10,92,168,.12); }}
+  .filter-btn {{
+    background: var(--chip); border: 1.5px solid var(--accent); color: var(--accent);
+    border-radius: 20px; padding: 6px 14px; font-size: .82rem; cursor: pointer;
+    white-space: nowrap; font-family: inherit; transition: background .15s, color .15s;
+  }}
+  .filter-btn:hover {{ background: #c8ddf5; }}
+  .filter-btn.active {{ background: var(--accent); color: #fff; }}
+  .clear-btn {{
+    background: none; border: 1px solid var(--line); color: var(--sub);
+    border-radius: 20px; padding: 6px 12px; font-size: .82rem;
+    cursor: pointer; font-family: inherit;
+  }}
+  .clear-btn:hover {{ background: var(--line); }}
+
+  /* Legend */
+  .legend-wrap {{ max-width: 880px; margin: 12px auto 0; padding: 0 16px; }}
+  .legend {{
+    background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 14px; font-size: .84rem;
+  }}
+  .legend summary {{ cursor: pointer; font-weight: 600; color: var(--sub); user-select: none; }}
+  .legend-body {{ padding: 8px 0 0 8px; line-height: 1.75; }}
+  .legend-body p {{ margin: 2px 0; }}
+  .legend-note {{ color: var(--sub); font-size: .8rem; margin-top: 8px !important; }}
+
+  /* Result View */
+  #resultView {{ margin-bottom: 20px; }}
+  .result-head {{
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;
+  }}
+  .result-title {{ font-weight: 700; font-size: 1rem; }}
+  .back-btn {{
+    background: none; border: 1px solid var(--line); border-radius: 6px;
+    padding: 4px 10px; font-size: .8rem; cursor: pointer; color: var(--sub); font-family: inherit;
+  }}
+  .back-btn:hover {{ background: var(--line); }}
+  .no-result {{ color: var(--sub); font-size: .9rem; padding: 16px 0; }}
+  .cat-chip {{
+    display: inline-block; border-radius: 4px; padding: 1px 7px;
+    font-size: .77rem; font-weight: 600; white-space: nowrap;
+  }}
+  .cat-mashitan-on {{ background: #fff3cd; color: #7a5800; }}
+  .cat-mashitan-off {{ background: #d1ecf1; color: #0c5460; }}
+  .cat-urikin-on {{ background: #f8d7da; color: #721c24; }}
+  .cat-urikin-off {{ background: #d4edda; color: #155724; }}
+  .cat-other {{ background: var(--chip); color: var(--accent); }}
+
+  /* Cards */
   .day {{ margin: 26px 0 10px; font-size: 1.05rem; font-weight: 700; color: var(--accent);
           border-left: 4px solid var(--accent); padding-left: 10px; }}
   .card {{ background: var(--card); border: 1px solid var(--line); border-radius: 10px;
@@ -322,6 +429,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </style>
 </head>
 <body>
+
 <header>
   <div class="wrap">
     <div class="header-top">
@@ -331,31 +439,213 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <p>日本証券金融のお知らせ（増担保金徴収措置・貸借取引規制など）のPDFを自動要約 ｜ 最終更新: {updated} JST</p>
   </div>
 </header>
-<div class="toolbar">
-  <input id="q" type="search" placeholder="銘柄コード・銘柄名・キーワードで絞り込み（例: 3135）">
+
+<!-- 月別タブ（スティッキー） -->
+<div class="month-tabs-wrap">
+  <div class="month-tabs" id="monthTabs">
+    <button class="tab active" data-month="">全期間</button>
+    {month_tabs}
+  </div>
 </div>
+
+<!-- 検索 + フィルターボタン -->
+<div class="search-wrap">
+  <div class="search-row">
+    <input id="codeSearch" type="search" placeholder="銘柄コードで検索（例: 3135）">
+    <button class="filter-btn" data-cat="増担保実施">増担保実施</button>
+    <button class="filter-btn" data-cat="増担保解除">増担保解除</button>
+    <button class="filter-btn" data-cat="売り禁実施">売り禁実施</button>
+    <button class="filter-btn" data-cat="売り禁解除">売り禁解除</button>
+    <button id="clearBtn" class="clear-btn">✕ クリア</button>
+  </div>
+</div>
+
+<!-- 措置の対象 凡例 -->
+<div class="legend-wrap">
+  <details class="legend">
+    <summary>（措置の対象）イ・ロ・ハ の説明</summary>
+    <div class="legend-body">
+      <p><b>イ.</b> 制度信用取引の新規売り（自己の信用売りを含む。）に伴う貸株申込および融資返済申込み</p>
+      <p><b>ロ.</b> 制度信用取引による買い（自己の信用買いを含む。以下同じ。）の現引きに伴う融資返済申込みおよび貸株申込み</p>
+      <p><b>ハ.</b> 金融商品取引所の立会外取引およびPTSにおける立会外取引に類似する取引を利用した制度信用取引による買いの転売に伴う融資返済申込みおよび貸株申込み</p>
+      <p class="legend-note">※ 弁済繰延期限到来分のロ.およびハ.は対象外。東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されます。</p>
+    </div>
+  </details>
+</div>
+
+<!-- 結果ビュー（コード検索 / フィルター時） -->
+<div id="resultView" class="wrap hidden">
+  <div class="result-head" id="resultHead"></div>
+  <div id="resultBody"></div>
+</div>
+
+<!-- カードビュー -->
 <main class="wrap" id="list">
 {items}
 </main>
+
 <footer>
   出典: <a href="https://www.taisyaku.jp/news/" target="_blank" rel="noopener">日本証券金融株式会社 お知らせ</a>
   ｜ 本ページは公開PDFを自動要約した非公式まとめです。正確な内容は必ず原本PDFをご確認ください。
 </footer>
+
 <script>
-document.getElementById('q').addEventListener('input', function () {{
-  const q = this.value.trim().toLowerCase();
-  document.querySelectorAll('.card').forEach(c => {{
-    c.classList.toggle('hidden', q && !c.textContent.toLowerCase().includes(q));
+(function() {{
+  var ALL_STOCKS = STOCKS_JSON_PLACEHOLDER;
+
+  var CAT_CLASS = {{
+    '増担保実施': 'mashitan-on',
+    '増担保解除': 'mashitan-off',
+    '売り禁実施': 'urikin-on',
+    '売り禁解除': 'urikin-off'
+  }};
+
+  var activeMonth = '';
+  var activeFilter = '';
+  var activeCode = '';
+
+  // ---- Month tabs ----
+  document.getElementById('monthTabs').addEventListener('click', function(e) {{
+    var btn = e.target.closest('.tab');
+    if (!btn) return;
+    activeMonth = btn.dataset.month;
+    document.querySelectorAll('.tab').forEach(function(b) {{
+      b.classList.toggle('active', b === btn);
+    }});
+    clearSearchState();
+    applyView();
   }});
-  document.querySelectorAll('.day').forEach(d => {{
-    let el = d.nextElementSibling, visible = false;
-    while (el && !el.classList.contains('day')) {{
-      if (el.classList.contains('card') && !el.classList.contains('hidden')) visible = true;
-      el = el.nextElementSibling;
+
+  // ---- Code search ----
+  document.getElementById('codeSearch').addEventListener('input', function() {{
+    activeCode = this.value.trim();
+    activeFilter = '';
+    document.querySelectorAll('.filter-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+    applyView();
+  }});
+
+  // ---- Filter buttons ----
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {{
+    btn.addEventListener('click', function() {{
+      var cat = this.dataset.cat;
+      if (activeFilter === cat) {{
+        activeFilter = '';
+        this.classList.remove('active');
+      }} else {{
+        activeFilter = cat;
+        document.querySelectorAll('.filter-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+        this.classList.add('active');
+        activeCode = '';
+        document.getElementById('codeSearch').value = '';
+      }}
+      applyView();
+    }});
+  }});
+
+  // ---- Clear button ----
+  document.getElementById('clearBtn').addEventListener('click', function() {{
+    clearSearchState();
+    applyView();
+  }});
+
+  function clearSearchState() {{
+    activeFilter = '';
+    activeCode = '';
+    document.getElementById('codeSearch').value = '';
+    document.querySelectorAll('.filter-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+  }}
+
+  function applyView() {{
+    if (activeFilter) {{
+      showFilterResult(activeFilter);
+    }} else if (activeCode.length >= 2) {{
+      showCodeResult(activeCode);
+    }} else {{
+      showCardView();
     }}
-    d.classList.toggle('hidden', !visible);
-  }});
-}});
+  }}
+
+  function showCardView() {{
+    document.getElementById('resultView').classList.add('hidden');
+    document.getElementById('list').classList.remove('hidden');
+    document.querySelectorAll('.card').forEach(function(c) {{
+      c.classList.toggle('hidden', !!activeMonth && c.dataset.month !== activeMonth);
+    }});
+    document.querySelectorAll('.day').forEach(function(d) {{
+      d.classList.toggle('hidden', !!activeMonth && d.dataset.month !== activeMonth);
+    }});
+  }}
+
+  function showCodeResult(code) {{
+    var q = code.toLowerCase();
+    var results = ALL_STOCKS.filter(function(s) {{
+      return (s.code && s.code.toLowerCase().indexOf(q) === 0) ||
+             (s.name && s.name.indexOf(code) !== -1);
+    }});
+    if (!results.length) {{
+      renderResult('コード「' + esc(code) + '」の規制履歴', '<p class="no-result">該当するデータがありません</p>');
+      return;
+    }}
+    var rows = results.map(function(s) {{
+      var cc = CAT_CLASS[s.category] || 'other';
+      return '<tr>' +
+        '<td style="white-space:nowrap">' + esc(s.date) + '</td>' +
+        '<td class="code">' + esc(s.code) + '</td>' +
+        '<td>' + esc(s.name) + '</td>' +
+        '<td><span class="cat-chip cat-' + cc + '">' + esc(s.category) + '</span></td>' +
+        '<td style="font-size:.8rem;color:#5b6b7f">' + esc(s.section || '') + '</td>' +
+        '<td style="font-size:.8rem">' + esc(s.note || '') + '</td>' +
+        '<td><a href="' + esc(s.docUrl) + '" target="_blank" rel="noopener">PDF</a></td>' +
+        '</tr>';
+    }}).join('');
+    renderResult(
+      'コード「' + esc(code) + '」の規制履歴（' + results.length + '件）',
+      '<table><tr><th>日付</th><th>コード</th><th>銘柄名</th><th>区分</th><th>セクション</th><th>補足</th><th>原本</th></tr>' + rows + '</table>'
+    );
+  }}
+
+  function showFilterResult(cat) {{
+    var results = ALL_STOCKS.filter(function(s) {{ return s.category === cat; }});
+    if (!results.length) {{
+      renderResult(esc(cat) + ' 一覧', '<p class="no-result">該当するデータがありません</p>');
+      return;
+    }}
+    var rows = results.map(function(s) {{
+      return '<tr>' +
+        '<td style="white-space:nowrap">' + esc(s.date) + '</td>' +
+        '<td class="code">' + esc(s.code) + '</td>' +
+        '<td>' + esc(s.name) + '</td>' +
+        '<td style="font-size:.8rem;color:#5b6b7f">' + esc(s.section || '') + '</td>' +
+        '<td style="font-size:.8rem">' + esc(s.note || '') + '</td>' +
+        '<td><a href="' + esc(s.docUrl) + '" target="_blank" rel="noopener">PDF</a></td>' +
+        '</tr>';
+    }}).join('');
+    renderResult(
+      esc(cat) + ' 一覧（' + results.length + '件）',
+      '<table><tr><th>日付</th><th>コード</th><th>銘柄名</th><th>セクション</th><th>補足</th><th>原本</th></tr>' + rows + '</table>'
+    );
+  }}
+
+  function renderResult(title, bodyHtml) {{
+    document.getElementById('list').classList.add('hidden');
+    var rv = document.getElementById('resultView');
+    rv.classList.remove('hidden');
+    document.getElementById('resultHead').innerHTML =
+      '<span class="result-title">' + title + '</span>' +
+      '<button class="back-btn" id="backBtn">← 戻る</button>';
+    document.getElementById('backBtn').addEventListener('click', function() {{
+      clearSearchState();
+      applyView();
+    }});
+    document.getElementById('resultBody').innerHTML = bodyHtml;
+  }}
+
+  function esc(s) {{
+    return String(s || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }}
+}})();
 </script>
 </body>
 </html>
@@ -369,7 +659,8 @@ def esc(s: str) -> str:
 
 def render_item(item: dict, latest: bool = False) -> str:
     s = item.get("summary") or {}
-    parts = [f'<div class="card{" latest" if latest else ""}">']
+    month = (item.get("date", "") or "")[:7]
+    parts = [f'<div class="card{" latest" if latest else ""}" data-month="{month}">']
     parts.append(f'<h3><a href="{esc(item["url"])}" target="_blank" rel="noopener">{esc(item["title"])}</a></h3>')
     meta = f'<span class="chip">{esc(item.get("label") or "お知らせ")}</span>'
     meta += f'<a class="pdf-link" href="{esc(item["url"])}" target="_blank" rel="noopener">原本PDF</a>'
@@ -419,9 +710,45 @@ def render_item(item: dict, latest: bool = False) -> str:
 def generate_site(items: list[dict]) -> None:
     items = sorted(items, key=lambda x: x["date"], reverse=True)
     latest_date = items[0]["date"] if items else ""
+
+    # 月別タブ（出現順）
+    seen_months: list[str] = []
+    month_set: set[str] = set()
+    for item in items:
+        ym = (item.get("date", "") or "")[:7]
+        if ym and ym not in month_set:
+            month_set.add(ym)
+            seen_months.append(ym)
+    month_tabs = "\n    ".join(
+        f'<button class="tab" data-month="{m}">{m.replace("-", "/")}</button>'
+        for m in seen_months
+    )
+
+    # ALL_STOCKS JSON（コード検索・フィルター用）
+    all_stocks = []
+    for item in items:
+        s = item.get("summary") or {}
+        title = item.get("title", "")
+        for st in (s.get("stocks") or []):
+            cat = map_category(title, st.get("section", ""), st.get("note", ""))
+            all_stocks.append({
+                "date": item.get("date", ""),
+                "month": (item.get("date", "") or "")[:7],
+                "docTitle": title,
+                "docUrl": item.get("url", ""),
+                "code": st.get("code", ""),
+                "name": st.get("name", ""),
+                "note": st.get("note", ""),
+                "section": st.get("section", ""),
+                "category": cat,
+            })
+    stocks_json = json.dumps(all_stocks, ensure_ascii=False)
+
+    # カードHTML
     chunks, current_date = [], None
     for item in items:
         is_latest = item["date"] == latest_date
+        month = (item.get("date", "") or "")[:7]
         if item["date"] != current_date:
             current_date = item["date"]
             try:
@@ -430,12 +757,17 @@ def generate_site(items: list[dict]) -> None:
             except ValueError:
                 label = current_date
             badge = '<span class="new-badge">NEW</span>' if is_latest else ""
-            chunks.append(f'<div class="day">{label}{badge}</div>')
+            chunks.append(f'<div class="day" data-month="{month}">{label}{badge}</div>')
         chunks.append(render_item(item, latest=is_latest))
+
+    # JSON はフォーマット後に置換（{} が format() と衝突するのを避ける）
     html = HTML_TEMPLATE.format(
         updated=datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
+        month_tabs=month_tabs,
         items="\n".join(chunks),
     )
+    html = html.replace("STOCKS_JSON_PLACEHOLDER", stocks_json)
+
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
     (DOCS_DIR / "index.html").write_text(html, encoding="utf-8")
     (DOCS_DIR / ".nojekyll").write_text("", encoding="utf-8")

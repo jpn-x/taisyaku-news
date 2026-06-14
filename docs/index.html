@@ -19,6 +19,8 @@
          font-family: "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif; line-height: 1.65;
          caret-color: transparent; }
   input, textarea, [contenteditable] { caret-color: auto; }
+
+  /* Header */
   header { background: linear-gradient(135deg, #0a3d6e, #0a5ca8); color: #fff; padding: 28px 16px; }
   .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
   .header-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -26,11 +28,87 @@
   header p { margin: 6px 0 0; opacity: .85; font-size: .85rem; }
   .reload-btn { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4);
                 color: #fff; border-radius: 7px; padding: 5px 14px; font-size: .82rem;
-                cursor: pointer; white-space: nowrap; letter-spacing: .3px; }
+                cursor: pointer; white-space: nowrap; letter-spacing: .3px; font-family: inherit; }
   .reload-btn:hover { background: rgba(255,255,255,.3); }
-  .toolbar { display: flex; gap: 10px; margin: 18px auto; max-width: 880px; padding: 0 16px; }
-  .toolbar input { flex: 1; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px;
-                    font-size: .95rem; }
+
+  /* Month tabs (sticky) */
+  .month-tabs-wrap {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  }
+  .month-tabs {
+    max-width: 880px; margin: 0 auto; padding: 0 12px;
+    display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+  }
+  .month-tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0; background: none; border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 13px; font-size: .85rem; cursor: pointer;
+    color: var(--sub); white-space: nowrap; font-family: inherit; transition: color .15s;
+  }
+  .tab:hover { color: var(--accent); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+
+  /* Search + Filter Row */
+  .search-wrap { max-width: 880px; margin: 14px auto 0; padding: 0 16px; }
+  .search-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  #codeSearch {
+    width: 200px; padding: 8px 12px;
+    border: 1.5px solid var(--line); border-radius: 7px;
+    font-size: .9rem; font-family: inherit;
+  }
+  #codeSearch:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(10,92,168,.12); }
+  .filter-btn {
+    background: var(--chip); border: 1.5px solid var(--accent); color: var(--accent);
+    border-radius: 20px; padding: 6px 14px; font-size: .82rem; cursor: pointer;
+    white-space: nowrap; font-family: inherit; transition: background .15s, color .15s;
+  }
+  .filter-btn:hover { background: #c8ddf5; }
+  .filter-btn.active { background: var(--accent); color: #fff; }
+  .clear-btn {
+    background: none; border: 1px solid var(--line); color: var(--sub);
+    border-radius: 20px; padding: 6px 12px; font-size: .82rem;
+    cursor: pointer; font-family: inherit;
+  }
+  .clear-btn:hover { background: var(--line); }
+
+  /* Legend */
+  .legend-wrap { max-width: 880px; margin: 12px auto 0; padding: 0 16px; }
+  .legend {
+    background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 14px; font-size: .84rem;
+  }
+  .legend summary { cursor: pointer; font-weight: 600; color: var(--sub); user-select: none; }
+  .legend-body { padding: 8px 0 0 8px; line-height: 1.75; }
+  .legend-body p { margin: 2px 0; }
+  .legend-note { color: var(--sub); font-size: .8rem; margin-top: 8px !important; }
+
+  /* Result View */
+  #resultView { margin-bottom: 20px; }
+  .result-head {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .result-title { font-weight: 700; font-size: 1rem; }
+  .back-btn {
+    background: none; border: 1px solid var(--line); border-radius: 6px;
+    padding: 4px 10px; font-size: .8rem; cursor: pointer; color: var(--sub); font-family: inherit;
+  }
+  .back-btn:hover { background: var(--line); }
+  .no-result { color: var(--sub); font-size: .9rem; padding: 16px 0; }
+  .cat-chip {
+    display: inline-block; border-radius: 4px; padding: 1px 7px;
+    font-size: .77rem; font-weight: 600; white-space: nowrap;
+  }
+  .cat-mashitan-on { background: #fff3cd; color: #7a5800; }
+  .cat-mashitan-off { background: #d1ecf1; color: #0c5460; }
+  .cat-urikin-on { background: #f8d7da; color: #721c24; }
+  .cat-urikin-off { background: #d4edda; color: #155724; }
+  .cat-other { background: var(--chip); color: var(--accent); }
+
+  /* Cards */
   .day { margin: 26px 0 10px; font-size: 1.05rem; font-weight: 700; color: var(--accent);
           border-left: 4px solid var(--accent); padding-left: 10px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
@@ -61,31 +139,71 @@
 </style>
 </head>
 <body>
+
 <header>
   <div class="wrap">
     <div class="header-top">
       <h1>日証金 貸借取引情報ダイジェスト</h1>
       <button class="reload-btn" onclick="location.href=location.pathname+'?v='+Date.now()">&#8635; 強制リロード</button>
     </div>
-    <p>日本証券金融のお知らせ（増担保金徴収措置・貸借取引規制など）のPDFを自動要約 ｜ 最終更新: 2026-06-12 22:44 JST</p>
+    <p>日本証券金融のお知らせ（増担保金徴収措置・貸借取引規制など）のPDFを自動要約 ｜ 最終更新: 2026-06-15 01:42 JST</p>
   </div>
 </header>
-<div class="toolbar">
-  <input id="q" type="search" placeholder="銘柄コード・銘柄名・キーワードで絞り込み（例: 3135）">
+
+<!-- 月別タブ（スティッキー） -->
+<div class="month-tabs-wrap">
+  <div class="month-tabs" id="monthTabs">
+    <button class="tab active" data-month="">全期間</button>
+    <button class="tab" data-month="2026-06">2026/06</button>
+    <button class="tab" data-month="2026-05">2026/05</button>
+  </div>
 </div>
+
+<!-- 検索 + フィルターボタン -->
+<div class="search-wrap">
+  <div class="search-row">
+    <input id="codeSearch" type="search" placeholder="銘柄コードで検索（例: 3135）">
+    <button class="filter-btn" data-cat="増担保実施">増担保実施</button>
+    <button class="filter-btn" data-cat="増担保解除">増担保解除</button>
+    <button class="filter-btn" data-cat="売り禁実施">売り禁実施</button>
+    <button class="filter-btn" data-cat="売り禁解除">売り禁解除</button>
+    <button id="clearBtn" class="clear-btn">✕ クリア</button>
+  </div>
+</div>
+
+<!-- 措置の対象 凡例 -->
+<div class="legend-wrap">
+  <details class="legend">
+    <summary>（措置の対象）イ・ロ・ハ の説明</summary>
+    <div class="legend-body">
+      <p><b>イ.</b> 制度信用取引の新規売り（自己の信用売りを含む。）に伴う貸株申込および融資返済申込み</p>
+      <p><b>ロ.</b> 制度信用取引による買い（自己の信用買いを含む。以下同じ。）の現引きに伴う融資返済申込みおよび貸株申込み</p>
+      <p><b>ハ.</b> 金融商品取引所の立会外取引およびPTSにおける立会外取引に類似する取引を利用した制度信用取引による買いの転売に伴う融資返済申込みおよび貸株申込み</p>
+      <p class="legend-note">※ 弁済繰延期限到来分のロ.およびハ.は対象外。東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されます。</p>
+    </div>
+  </details>
+</div>
+
+<!-- 結果ビュー（コード検索 / フィルター時） -->
+<div id="resultView" class="wrap hidden">
+  <div class="result-head" id="resultHead"></div>
+  <div id="resultBody"></div>
+</div>
+
+<!-- カードビュー -->
 <main class="wrap" id="list">
-<div class="day">2026年06月12日（金）<span class="new-badge">NEW</span></div>
-<div class="card latest">
+<div class="day" data-month="2026-06">2026年06月12日（金）<span class="new-badge">NEW</span></div>
+<div class="card latest" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260612_koukan.pdf" target="_blank" rel="noopener">株式交換に伴う貸借取引対象銘柄の選定取消し等について（6/12）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260612_koukan.pdf" target="_blank" rel="noopener">原本PDF</a> （134.7 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し貸借融資銘柄（東京証券取引所市場分）バリオセキュア㈱株式（4494）選定取消日2026年6月26日（金）（PTS分）バリオセキュア㈱株式（4494）選定取消日2026年6月26日（金）（注1）PTS分の貸借取引対象銘柄は、各PTSにより異なる場合がございますので、詳細は各PTS運営業者までご照会ください。</li><li>（注2）選定取消日において、当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等が解除されていない場合、選定取消日をもって、解除することといたします。</li><li>②甲について、選定取消日以降も貸借取引残高を継続し、株式交換の日（当該日が休日の場合は株式交換の日以降最初の売買日。</li><li>当該申込み後の継続残高については、株式交換の日の前営業日（約定日）まで返済申込みの受付は行わず、当該期間の貸借値段については甲の申込最終日の貸借値段を適用します。</li></ul>
 </div>
-<div class="card latest">
+<div class="card latest" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260612_bunkatsu.pdf" target="_blank" rel="noopener">貸借取引に係る株式分割による株式を受ける権利等の処理について（6/12）</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260612_bunkatsu.pdf" target="_blank" rel="noopener">原本PDF</a> （150.2 KB）</div>
 <ul class="points"><li>さて、標記の件を下記の要領により実施いたしますのでご通知申し上げます。</li></ul>
 </div>
-<div class="card latest">
+<div class="card latest" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260612_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/12）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260612_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （131.9 KB）</div>
 <div class="sec-label">貸株利用等に関する注意喚起の通知</div>
@@ -93,15 +211,15 @@
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2523</td><td>ＭＡＸＩＳトピックス（除く金融）上場投信</td><td>ロ / イ</td></tr><tr><td class="code">3204</td><td>㈱トーア紡コーポレーション</td><td>ロ / イ</td></tr></table>
 <ul class="points"><li>貸株利用等に関する注意喚起の通知: 戸田工業㈱（4100）</li></ul>
 </div>
-<div class="card latest">
+<div class="card latest" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260612_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/12）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260612_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （124.3 KB）</div>
 <div class="sec-label">貸株利用等に関する注意喚起の通知</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3662</td><td>㈱エイチームホールディングス</td><td></td></tr></table>
 <ul class="points"><li>貸株利用等に関する注意喚起の通知: ㈱エイチームホールディングス（3662）</li></ul>
 </div>
-<div class="day">2026年06月11日（木）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月11日（木）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260611_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/11）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260611_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （139.0 KB）</div>
 <div class="sec-label">貸株利用等に関する注意喚起の通知</div>
@@ -110,613 +228,757 @@
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">1325</td><td>ＮＥＸＴ ＦＵＮＤＳ ブラジル株式指数・ボベスパ連動型上場投信</td><td>イ、ロ</td></tr><tr><td class="code">2523</td><td>ＭＡＸＩＳトピックス（除く金融）上場投信</td><td>イ、ロ</td></tr><tr><td class="code">3653</td><td>㈱モルフォ</td><td>イ、ロ</td></tr><tr><td class="code">3807</td><td>㈱フィスコ</td><td>イ、ロ</td></tr><tr><td class="code">4436</td><td>㈱ミンカブ・ジ・インフォノイド</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貸株利用等に関する注意喚起の通知: アイ・ケイ・ケイホールディングス㈱（2198）、チムニー㈱（3178）、共和レザー㈱（3553）、㈱ＮＥＸＹＺ．Ｇｒｏｕｐ（4346） ほか1銘柄</li><li>申込停止措置の実施（実施日（約定日）: ＮＥＸＴ ＦＵＮＤＳ ブラジル株式指数・ボベスパ連動型上場投信（1325）、ＭＡＸＩＳトピックス（除く金融）上場投信（2523）、㈱モルフォ（3653）、㈱フィスコ（3807） ほか1銘柄</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260611_4baikaizyo.pdf" target="_blank" rel="noopener">貸借取引の品貸し申込みにおける品貸料の最高料率に係る臨時措置の解除について（6/11）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260611_4baikaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （111.5 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">7183</td><td>あんしん保証㈱</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸借取引の品貸し申込みにおける品貸料の最高料率を4倍とする臨時措置を実施しておりますが、2026年6月12日申込日分（6月15日品貸し申込み受付分）より当該臨時措置を解除することといたしましたので、ご通知申し上げます。</li><li>なお、当該銘柄に関して実施している制度信用取引の新規売りおよび制度信用取引による買いの現引きに伴う貸借取引の申込停止措置は継続しておりますので、念のため申し添えます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/11）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （136.9 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6614</td><td>㈱シキノハイテック</td><td></td></tr><tr><td class="code">6926</td><td>岡谷電機産業㈱</td><td></td></tr><tr><td class="code">3987</td><td>エコモット㈱</td><td></td></tr><tr><td class="code">4167</td><td>㈱ココペリ</td><td></td></tr><tr><td class="code">5998</td><td>㈱アドバネクス</td><td></td></tr><tr><td class="code">6027</td><td>弁護士ドットコム㈱</td><td></td></tr><tr><td class="code">6659</td><td>㈱メディアリンクス</td><td></td></tr><tr><td class="code">9376</td><td>㈱ユーラシア旅行社</td><td></td></tr><tr><td class="code">7183</td><td>あんしん保証㈱</td><td>ロ / イ</td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年06月10日（水）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月10日（水）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260610_iten.pdf" target="_blank" rel="noopener">株式移転に伴う貸借取引対象銘柄の選定取消しおよび追加等について（6/10）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260610_iten.pdf" target="_blank" rel="noopener">原本PDF</a> （177.2 KB）</div>
 <ul class="points"><li>（注2）選定取消日において、当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等が解除されていない場合、選定取消日をもって、解除することといたします。</li><li>②甲について、選定取消日以降も貸借取引残高を継続し、株式移転期日となる7月1日（水）において移転比率に応じて読み替えた親会社株式（表記載の乙。</li><li>当該申込み後の継続残高については、株式移転期日の前営業日（約定日）まで返済申込みの受付は行わず、当該期間の貸借値段については甲の申込最終日の貸借値段を適用します。</li><li>また、貸株超過となった場合には、下記（２）の取扱いにより決定される品貸料率を適用します。</li><li>イ．品貸申込は、甲について、１日当りの料率により最低単位株数の整数倍で行うものとします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260610_mashitanpo.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（6/10）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260610_mashitanpo.pdf" target="_blank" rel="noopener">原本PDF</a> （76.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3907</td><td>シリコンスタジオ㈱</td><td>東京、PTS / 30% ｜ 増担保の解除</td></tr><tr><td class="code">6613</td><td>㈱QD レーザ</td><td>東京、PTS / 30% ｜ 増担保の解除</td></tr></table>
 <ul class="points"><li>増担保の新規実施: 該当なし</li><li>増担保の変更: 該当なし</li><li>増担保の解除: シリコンスタジオ㈱（3907）、㈱QD レーザ（6613）（解除日: 2026年6月11日）</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260610_taisyakuriyou.pdf" target="_blank" rel="noopener">㈱マーケットエンタープライズ（3135）に係る貸借取引のご利用について（6/10）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260610_taisyakuriyou.pdf" target="_blank" rel="noopener">原本PDF</a> （130.7 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3135</td><td>㈱マーケットエンタープライズ</td><td></td></tr></table>
 <ul class="points"><li>さて、当社は、下記銘柄につきまして、申込停止措置1、品貸料（逆日歩）の最高料率を10倍とする臨時措置2および品貸料（逆日歩）の最低料率を引き上げる特別措置3を実施のうえ、当該銘柄の株券調達について引き続き最大限努力しておりますが、今後、基準日（2026年6月30日）にかかる権利付き売買最終日にかけて、株券調達が極めて困難となる可能性がございます。</li><li>つきましては、今後の状況によりましては、貸借取引貸出規程第4条に基づく貸株のご返済をお願いすることもありますので、当該銘柄の貸借取引貸株をご利用中の貸借取引参加者におかれましては、予めご承知おき下さいますようお願い申し上げます。</li><li>また、各貸借取引参加者におかれましては、当該銘柄の状況につきご賢察のうえ、制度信用取引の買いの返済（現引きおよび東京証券取引所のToSTNeT市場（立会外取引）での制度信用取引の買いの転売と現物取引の買いを組み合わせた取引（クロス取引）を含む。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/10）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （136.2 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">178A</td><td>グローバルＸ 革新的優良企業 ETF</td><td></td></tr><tr><td class="code">5253</td><td>カバー㈱</td><td></td></tr><tr><td class="code">543A</td><td>ARCHION㈱</td><td></td></tr><tr><td class="code">6245</td><td>㈱ヒラノテクシード</td><td></td></tr><tr><td class="code">6993</td><td>大黒屋ホールディングス㈱</td><td></td></tr><tr><td class="code">9130</td><td>共栄タンカー㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260610_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/10）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260610_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （129.2 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">1433</td><td>ベステラ㈱</td><td></td></tr><tr><td class="code">2938</td><td>㈱オカムラ食品工業</td><td></td></tr><tr><td class="code">3559</td><td>㈱ピーバンドットコム</td><td></td></tr><tr><td class="code">3690</td><td>㈱イルグルム</td><td></td></tr><tr><td class="code">6031</td><td>ＺＥＴＡ㈱</td><td>イ、ロ</td></tr><tr><td class="code">6888</td><td>アクモス㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄1433ベステラ㈱2938㈱オカムラ食品工業3559㈱ピーバンドットコム3690㈱イルグルム※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年06月09日（火）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月09日（火）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260609_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/9）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260609_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （129.0 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6203</td><td>豊和工業㈱</td><td></td></tr><tr><td class="code">4347</td><td>ブロードメディア㈱</td><td>ロ / イ</td></tr></table>
 <ul class="points"><li>記１．貸株利用等に関する注意喚起の取消コード対象銘柄6203豊和工業㈱２．申込停止措置の解除コード対象銘柄‐該当なし３．申込停止措置の解除および今後の貸株利用等に関する注意喚起の通知コード対象銘柄‐該当なし※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年06月08日（月）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月08日（月）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260608_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/8）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260608_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （132.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2689</td><td>オルバヘルスケアホールディングス㈱</td><td></td></tr><tr><td class="code">3041</td><td>㈱ビューティカダンホールディングス</td><td></td></tr><tr><td class="code">3082</td><td>㈱きちりホールディングス</td><td></td></tr><tr><td class="code">3154</td><td>メディアスホールディングス㈱</td><td></td></tr><tr><td class="code">3191</td><td>㈱ジョイフル本田</td><td></td></tr><tr><td class="code">3196</td><td>㈱ホットランドホールディングス</td><td></td></tr><tr><td class="code">7371</td><td>Ｚｅｎｋｅｎ㈱</td><td></td></tr><tr><td class="code">8928</td><td>穴吹興産㈱</td><td></td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260608_mashitanpo2.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（6/8）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260608_mashitanpo2.pdf" target="_blank" rel="noopener">原本PDF</a> （76.3 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">8105</td><td>Ｂｉｔｃｏｉｎ Ｊａｐａｎ㈱</td><td>東京、PTS / 50%（20%） ｜ 増担保の新規実施</td></tr></table>
 <ul class="points"><li>増担保の新規実施: Ｂｉｔｃｏｉｎ Ｊａｐａｎ㈱（8105）</li><li>増担保の変更: 該当なし</li><li>増担保の解除: 該当なし</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260608_tokubetsu.pdf" target="_blank" rel="noopener">貸借取引品貸し申込みにおける品貸料の最低料率引き上げについて （6/8）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260608_tokubetsu.pdf" target="_blank" rel="noopener">原本PDF</a> （148.8 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3135</td><td>㈱マーケットエンタープライズ</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸付株券の調達が極めて困難な状態の解消が見込まれないことから、2026年6月9日申込分（6月10日品貸し申込み受付分）から当分の間、貸借取引品貸し申込みにおける品貸料の最低料率を「当該銘柄の通常時の最高料率1として算出される品貸料」に引き上げる特別措置を講じることといたしましたので、ご通知申し上げます。</li><li>今後、貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用のお客様に対しましては、当該特別措置の実施についてご説明いただくようお願い申し上げます。</li><li>敬具記コード対象銘柄3135㈱マーケットエンタープライズ以上1品貸料率早見表に掲載している1株当たりの最高料率のことを指します。</li></ul>
 </div>
-<div class="day">2026年06月05日（金）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月05日（金）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/5）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （145.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2087</td><td>NZAM 上場投信 NASDAQ100（為替ヘッジあり）</td><td></td></tr><tr><td class="code">2558</td><td>ＭＡＸＩＳ米国株式（Ｓ＆Ｐ５００）上場投信</td><td></td></tr><tr><td class="code">2559</td><td>ＭＡＸＩＳ全世界株式（オール・カントリー）上場投信</td><td></td></tr><tr><td class="code">5367</td><td>㈱ニッカトー</td><td></td></tr><tr><td class="code">3168</td><td>㈱ＭＥＲＦ</td><td></td></tr><tr><td class="code">543A</td><td>ARCHION㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260605_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/5）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260605_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （137.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">1799</td><td>第一建設工業㈱</td><td></td></tr><tr><td class="code">3193</td><td>㈱エターナルホスピタリティグループ</td><td></td></tr><tr><td class="code">2217</td><td>モロゾフ㈱</td><td>イ、ロ</td></tr><tr><td class="code">3664</td><td>㈱ＷＩＺＥ</td><td>イ、ロ</td></tr><tr><td class="code">5589</td><td>㈱オートサーバー</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄1799第一建設工業㈱3193㈱エターナルホスピタリティグループ※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260605_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（6/5）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260605_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （86.0 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）三光産業㈱株式（7922）（２）選定取消日2026年6月6日（土）（３）経過措置2026年6月5日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月25日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="day">2026年06月04日（木）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月04日（木）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260604_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/4）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260604_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （146.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2648</td><td>NEXT FUNDSブルームバーグ米国国債（7-10年）インデックス（為替ヘッジあり）連動型上場投信</td><td></td></tr><tr><td class="code">3103</td><td>ユニチカ㈱</td><td></td></tr><tr><td class="code">3796</td><td>㈱いい生活</td><td></td></tr><tr><td class="code">7725</td><td>㈱インターアクション</td><td></td></tr><tr><td class="code">2859</td><td>NEXT FUNDS ユーロ・ストックス50指数（為替ヘッジあり）連動型上場投信</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260604_10bai.pdf" target="_blank" rel="noopener">貸借取引品貸し申込みにおける品貸料の最高料率10倍適用について（6/4）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260604_10bai.pdf" target="_blank" rel="noopener">原本PDF</a> （120.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3135</td><td>㈱マーケットエンタープライズ</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸付株券の調達が極めて困難であることから、2026年6月5日申込分（6月8日品貸し申込み受付分）から当分の間、貸借取引品貸し申込みにおける品貸料の最高料率を10倍とする臨時措置を講じることといたしましたので、ご通知申し上げます。</li><li>今後、貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用のお客様に対しましては、当該臨時措置の実施についてご説明いただくようお願い申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260604_4bai.pdf" target="_blank" rel="noopener">貸借取引品貸し申込みにおける品貸料の最高料率4倍適用について（6/4）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260604_4bai.pdf" target="_blank" rel="noopener">原本PDF</a> （118.1 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">7183</td><td>あんしん保証㈱</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸付株券の調達が困難であることから、2026年6月5日申込分（6月8日品貸し申込み受付分）から当分の間、貸借取引品貸し申込みにおける品貸料の最高料率を4倍とする臨時措置を講じることといたしましたので、ご通知申し上げます。</li><li>今後、貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用のお客様に対しましては、当該臨時措置の実施についてご説明いただくようお願い申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260604_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/4）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260604_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （144.2 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">1366</td><td>iFreeETF 日経平均ダブルインバース・インデックス</td><td></td></tr><tr><td class="code">1368</td><td>iFreeETF TOPIXダブルインバース（-2倍）指数</td><td></td></tr><tr><td class="code">3667</td><td>㈱ｅｎｉｓｈ</td><td></td></tr><tr><td class="code">4449</td><td>㈱ギフティ</td><td></td></tr><tr><td class="code">1419</td><td>タマホーム㈱</td><td>イ、ロ</td></tr><tr><td class="code">3457</td><td>㈱Ａｎｄ Ｄｏホールディングス</td><td>イ、ロ</td></tr><tr><td class="code">4382</td><td>ＨＥＲＯＺ㈱</td><td>イ、ロ</td></tr><tr><td class="code">5129</td><td>㈱ＦＩＸＥＲ</td><td>イ、ロ</td></tr><tr><td class="code">6522</td><td>㈱アスタリスク</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260604_sentei2.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（6/4）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260604_sentei2.pdf" target="_blank" rel="noopener">原本PDF</a> （73.5 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li><li>敬具記１．貸借取引対象銘柄の追加（１）貸借融資銘柄（福岡証券取引所市場分）清和中央ホールディングス㈱株式（7531）（２）実施日2026年6月5日（金）（約定日）…上場日と同日以上。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260604_sentei.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（6/4）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260604_sentei.pdf" target="_blank" rel="noopener">原本PDF</a> （75.9 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li><li>敬具記１．貸借取引対象銘柄の追加（１）貸借融資銘柄（東京証券取引所市場分）日本航空㈱第１回社債型種類株式（92015）（２）実施日2026年6月5日（金）（約定日）２．貸借担保金代用有価証券適格銘柄の追加（１）対象銘柄日本航空㈱第１回社債型種類株式（92015）（２）実施日2026年6月9日（火）（受入日）以上。</li></ul>
 </div>
-<div class="day">2026年06月03日（水）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月03日（水）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260603_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（6/3）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260603_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （89.0 KB）</div>
 <ul class="points"><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260603_mashitanpo.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（6/3）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260603_mashitanpo.pdf" target="_blank" rel="noopener">原本PDF</a> （108.1 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6072</td><td>地盤ネットホールディングス㈱</td><td>東京、PTS / 50%（20%） ｜ 増担保の新規実施</td></tr><tr><td class="code">485A</td><td>㈱パワーエックス</td><td>東京、PTS / 30% ｜ 増担保の解除</td></tr></table>
 <ul class="points"><li>増担保の新規実施: 地盤ネットホールディングス㈱（6072）</li><li>増担保の変更: 該当なし</li><li>増担保の解除: ㈱パワーエックス（485A）（解除日: 2026年6月4日）</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260603_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/3）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260603_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （137.5 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6619</td><td>ダブル・スコープ㈱</td><td></td></tr><tr><td class="code">8708</td><td>アイザワ証券グループ㈱</td><td></td></tr><tr><td class="code">4031</td><td>片倉コープアグリ㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260603_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/3）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260603_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （136.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3457</td><td>㈱Ａｎｄ Ｄｏホールディングス</td><td></td></tr><tr><td class="code">4060</td><td>rakumo㈱</td><td></td></tr><tr><td class="code">6036</td><td>ＫｅｅＰｅｒ技研㈱</td><td></td></tr><tr><td class="code">7213</td><td>レシップホールディングス㈱</td><td></td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄3457㈱ＡｎｄＤｏホールディングス4060rakumo㈱6036ＫｅｅＰｅｒ技研㈱7213レシップホールディングス㈱※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年06月02日（火）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月02日（火）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260602_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/2）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260602_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （132.3 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">4512</td><td>わかもと製薬㈱</td><td></td></tr><tr><td class="code">5589</td><td>㈱オートサーバー</td><td></td></tr><tr><td class="code">2162</td><td>ｎｍｓ ホールディングス㈱</td><td>イ、ロ</td></tr><tr><td class="code">3548</td><td>㈱バロックジャパンリミテッド</td><td>イ、ロ</td></tr><tr><td class="code">4428</td><td>㈱シノプス</td><td>イ、ロ</td></tr><tr><td class="code">6073</td><td>㈱アサンテ</td><td>イ、ロ</td></tr><tr><td class="code">7049</td><td>㈱識学</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄4512わかもと製薬㈱5589㈱オートサーバー※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260602_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（6/2）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260602_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （81.7 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱エイジス株式（4659）（２）選定取消日2026年6月3日（水）（３）経過措置2026年6月2日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月19日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="day">2026年06月01日（月）</div>
-<div class="card">
+<div class="day" data-month="2026-06">2026年06月01日（月）</div>
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260601_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（6/1）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260601_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （129.8 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6245</td><td>㈱ヒラノテクシード</td><td></td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄6245㈱ヒラノテクシード※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260601_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（6/1）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260601_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （86.1 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）水道機工㈱株式（6403）（２）選定取消日2026年6月2日（火）（３）経過措置2026年6月1日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月24日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260601_senteitorikeshi2.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（6/1）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260601_senteitorikeshi2.pdf" target="_blank" rel="noopener">原本PDF</a> （91.0 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借銘柄（東京証券取引所市場分およびPTS分）養命酒製造㈱株式（2540）（２）選定取消日2026年6月2日（火）（３）経過措置2026年6月1日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月18日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260601_10baikaizyo.pdf" target="_blank" rel="noopener">貸借取引の品貸し申込みにおける品貸料の最高料率に係る臨時措置の解除について（6/1）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260601_10baikaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （115.3 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">543A</td><td>ARCHION㈱</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸借取引の品貸し申込みにおける品貸料の最高料率を10倍とする臨時措置を実施しておりますが、2026年6月2日申込日分（6月3日品貸し申込み受付分）より当該臨時措置を解除することといたしましたので、ご通知申し上げます。</li><li>なお、当該銘柄に関して実施している制度信用取引の新規売りおよび制度信用取引による買いの現引きに伴う貸借取引の申込停止措置は継続しておりますので、念のため申し添えます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-06">
 <h3><a href="https://www.taisyaku.jp/media/20260601_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（6/1）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260601_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （134.9 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6496</td><td>㈱中北製作所</td><td>ロ / イ</td></tr></table>
 <ul class="points"><li>記１．貸株利用等に関する注意喚起の取消コード対象銘柄-該当なし２．申込停止措置の解除コード対象銘柄‐該当なし３．申込停止措置の解除および今後の貸株利用等に関する注意喚起の通知コード対象銘柄-該当なし※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月29日（金）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月29日（金）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260529_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/29）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260529_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （140.8 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2217</td><td>モロゾフ㈱</td><td></td></tr><tr><td class="code">3687</td><td>㈱フィックスターズ</td><td></td></tr><tr><td class="code">5367</td><td>㈱ニッカトー</td><td></td></tr><tr><td class="code">6073</td><td>㈱アサンテ</td><td></td></tr><tr><td class="code">6203</td><td>豊和工業㈱</td><td></td></tr><tr><td class="code">3053</td><td>㈱ペッパーフードサービス</td><td>イ、ロ</td></tr><tr><td class="code">4800</td><td>オリコン㈱</td><td>イ、ロ</td></tr><tr><td class="code">6926</td><td>岡谷電機産業㈱</td><td>イ、ロ</td></tr><tr><td class="code">7885</td><td>タカノ㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄2217モロゾフ㈱3687㈱フィックスターズ5367㈱ニッカトー6073㈱アサンテ6203豊和工業㈱※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260529_mashitanpo.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（5/29）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260529_mashitanpo.pdf" target="_blank" rel="noopener">原本PDF</a> （104.5 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">278A</td><td>Terra Drone ㈱</td><td>東京、PTS / 30% ｜ 増担保の解除</td></tr></table>
 <ul class="points"><li>増担保の新規実施: 該当なし</li><li>増担保の変更: 該当なし</li><li>増担保の解除: Terra Drone ㈱（278A）（解除日: 2026年6月1日）</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260529_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/29）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260529_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （86.7 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱ワットマン株式（9927）（２）選定取消日2026年5月30日（土）（３）経過措置2026年5月29日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月19日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260529_seigenkaizyo2.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/29）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260529_seigenkaizyo2.pdf" target="_blank" rel="noopener">原本PDF</a> （140.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2168</td><td>㈱パソナグループ</td><td></td></tr><tr><td class="code">3501</td><td>ＳＵＭＩＮＯＥ㈱</td><td></td></tr><tr><td class="code">7317</td><td>㈱松屋アールアンドディ</td><td>ロ / イ</td></tr><tr><td class="code">8554</td><td>㈱南日本銀行</td><td>ロ / イ</td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月28日（木）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月28日（木）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260528_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/28）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260528_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （87.4 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260528_sentei.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（5/28）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260528_sentei.pdf" target="_blank" rel="noopener">原本PDF</a> （70.0 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li><li>敬具記１．貸借取引対象銘柄の追加（１）貸借銘柄（東京証券取引所市場分）HUMANMADE㈱株式（456A）（２）実施日2026年5月29日（金）（約定日）以上。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260528_senteitorikeshi3.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/28）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260528_senteitorikeshi3.pdf" target="_blank" rel="noopener">原本PDF</a> （99.3 KB）</div>
 <ul class="points"><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/28）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （159.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">1430</td><td>ファーストコーポレーション㈱</td><td></td></tr><tr><td class="code">2791</td><td>大黒天物産㈱</td><td></td></tr><tr><td class="code">2792</td><td>㈱ハニーズホールディングス</td><td></td></tr><tr><td class="code">3791</td><td>㈱ＩＧポート</td><td></td></tr><tr><td class="code">3994</td><td>㈱マネーフォワード</td><td></td></tr><tr><td class="code">4465</td><td>㈱ニイタカ</td><td></td></tr><tr><td class="code">5869</td><td>㈱早稲田学習研究会</td><td></td></tr><tr><td class="code">6664</td><td>㈱オプトエレクトロニクス</td><td></td></tr><tr><td class="code">8887</td><td>㈱シーラホールディングス</td><td></td></tr><tr><td class="code">9278</td><td>ブックオフグループホールディングス㈱</td><td></td></tr><tr><td class="code">9369</td><td>㈱キユーソー流通システム</td><td></td></tr><tr><td class="code">2462</td><td>ライク㈱</td><td></td></tr><tr><td class="code">3160</td><td>㈱大光</td><td></td></tr><tr><td class="code">3547</td><td>㈱ユニシアホールディングス</td><td></td></tr><tr><td class="code">3892</td><td>㈱岡山製紙</td><td></td></tr><tr><td class="code">7487</td><td>小津産業㈱</td><td></td></tr><tr><td class="code">9216</td><td>ビーウィズ㈱</td><td></td></tr><tr><td class="code">9765</td><td>㈱オオバ</td><td></td></tr><tr><td class="code">1419</td><td>タマホーム㈱</td><td></td></tr><tr><td class="code">6047</td><td>㈱Ｇｕｎｏｓｙ</td><td></td></tr><tr><td class="code">7725</td><td>㈱インターアクション</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260528_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/28）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260528_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （132.8 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3140</td><td>ＢＲＵＮＯ㈱</td><td>イ、ロ</td></tr><tr><td class="code">4420</td><td>イーソル㈱</td><td>イ、ロ</td></tr><tr><td class="code">4933</td><td>㈱Ｉ－ｎｅ</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄-該当なし※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月27日（水）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月27日（水）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260527_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/27）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260527_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （145.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2325</td><td>㈱ＮＪＳ</td><td></td></tr><tr><td class="code">2558</td><td>ＭＡＸＩＳ米国株式（Ｓ＆Ｐ５００）上場投信</td><td></td></tr><tr><td class="code">2559</td><td>ＭＡＸＩＳ全世界株式（オール・カントリー）上場投信</td><td></td></tr><tr><td class="code">3028</td><td>㈱アルペン</td><td></td></tr><tr><td class="code">3140</td><td>ＢＲＵＮＯ㈱</td><td></td></tr><tr><td class="code">3277</td><td>㈱サンセイランディック</td><td></td></tr><tr><td class="code">4482</td><td>㈱ウィルズ</td><td></td></tr><tr><td class="code">4933</td><td>㈱Ｉ－ｎｅ</td><td></td></tr><tr><td class="code">7033</td><td>㈱マネジメントソリューションズ</td><td></td></tr><tr><td class="code">7962</td><td>㈱キングジム</td><td></td></tr><tr><td class="code">9227</td><td>マイクロ波化学㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260527_sentei.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（5/27）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260527_sentei.pdf" target="_blank" rel="noopener">原本PDF</a> （71.0 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li><li>敬具記１．貸借取引対象銘柄の追加（１）貸借銘柄（東京証券取引所市場分）㈱ジーデップ・アドバンス株式（5885）（２）実施日2026年5月28日（木）（約定日）以上。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260527_senteitorikeshi4.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/27）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260527_senteitorikeshi4.pdf" target="_blank" rel="noopener">原本PDF</a> （92.2 KB）</div>
 <ul class="points"><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260527_senteitorikeshi3.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/27）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260527_senteitorikeshi3.pdf" target="_blank" rel="noopener">原本PDF</a> （91.2 KB）</div>
 <ul class="points"><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260527_senteitorikeshi2.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/27）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260527_senteitorikeshi2.pdf" target="_blank" rel="noopener">原本PDF</a> （89.3 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱ヤマザキ株式（6147）（２）選定取消日2026年5月28日（木）（３）経過措置2026年5月27日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年10月1日）の前日（取引所の休業日を除く。</li><li>なお、上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260527_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/27）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260527_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （89.2 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借銘柄（東京証券取引所市場分およびPTS分）㈱ＭＣＪ株式（6670）（２）選定取消日2026年5月28日（木）（３）経過措置2026年5月27日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月16日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="day">2026年05月26日（火）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月26日（火）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260526_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/26）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260526_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （138.7 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3135</td><td>㈱マーケットエンタープライズ</td><td>イ、ロ</td></tr><tr><td class="code">3160</td><td>㈱大光</td><td>イ、ロ</td></tr><tr><td class="code">3547</td><td>㈱ユニシアホールディングス</td><td>イ、ロ</td></tr><tr><td class="code">3892</td><td>㈱岡山製紙</td><td>イ、ロ</td></tr><tr><td class="code">9765</td><td>㈱オオバ</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄-該当なし※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260526_bunkatsuseisu.pdf" target="_blank" rel="noopener">貸借取引に係る受益権分割による受益権を受ける権利等の処理について（整数倍銘柄）（5/26）</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260526_bunkatsuseisu.pdf" target="_blank" rel="noopener">原本PDF</a> （92.3 KB）</div>
 <ul class="points"><li>さて、標記の件を下記の要領により実施いたしますのでご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260526_sentei.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（5/26）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260526_sentei.pdf" target="_blank" rel="noopener">原本PDF</a> （71.9 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li><li>敬具記１．貸借取引対象銘柄の追加（１）貸借融資銘柄（福岡証券取引所市場分）日本エコシステム㈱株式（9249）（２）実施日2026年5月27日（水）（約定日）…上場日と同日以上。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260526_mashitanpo.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（5/26）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260526_mashitanpo.pdf" target="_blank" rel="noopener">原本PDF</a> （102.7 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6613</td><td>㈱QD レーザ</td><td>東京、PTS / 50%（20%） ｜ 増担保の新規実施</td></tr></table>
 <ul class="points"><li>増担保の新規実施: ㈱QD レーザ（6613）</li><li>増担保の変更: 該当なし</li><li>増担保の解除: 該当なし</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260526_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/26）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260526_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （86.7 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱ＩＮＦＯＲＩＣＨ株式（9338）（２）選定取消日2026年5月27日（水）（３）経過措置2026年5月26日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月16日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/26）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （146.3 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">1566</td><td>上場インデックスファンド新興国債券</td><td></td></tr><tr><td class="code">2015</td><td>iFreeETF 米国国債 7-10 年（為替ヘッジなし）</td><td></td></tr><tr><td class="code">2016</td><td>iFreeETF 米国国債 7-10 年（為替ヘッジあり）</td><td></td></tr><tr><td class="code">4418</td><td>㈱JDSC</td><td></td></tr><tr><td class="code">7256</td><td>河西工業㈱</td><td></td></tr><tr><td class="code">6264</td><td>㈱マルマエ</td><td></td></tr><tr><td class="code">3137</td><td>㈱ファンデリー</td><td></td></tr><tr><td class="code">4436</td><td>㈱ミンカブ・ジ・インフォノイド</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月25日（月）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月25日（月）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/25）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （154.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">5132</td><td>㈱ｐｌｕｓｚｅｒｏ</td><td></td></tr><tr><td class="code">5258</td><td>㈱トランザクション・メディア・ネットワークス</td><td></td></tr><tr><td class="code">3676</td><td>㈱デジタルハーツホールディングス</td><td></td></tr><tr><td class="code">8934</td><td>サンフロンティア不動産㈱</td><td></td></tr><tr><td class="code">2241</td><td>MAXIS NYダウ上場投信</td><td></td></tr><tr><td class="code">2242</td><td>MAXIS NYダウ上場投信（為替ヘッジあり）</td><td></td></tr><tr><td class="code">2846</td><td>NEXT FUNDSダウ・ジョーンズ工業株30種平均株価（為替ヘッジあり）連動型上場投信</td><td></td></tr><tr><td class="code">4229</td><td>群栄化学工業㈱</td><td></td></tr><tr><td class="code">4237</td><td>フジプレアム㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260525_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/25）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260525_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （138.5 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">1430</td><td>ファーストコーポレーション㈱</td><td></td></tr><tr><td class="code">2792</td><td>㈱ハニーズホールディングス</td><td></td></tr><tr><td class="code">3529</td><td>アツギ㈱</td><td></td></tr><tr><td class="code">7774</td><td>㈱ジャパン・ティッシュエンジニアリング</td><td></td></tr><tr><td class="code">286A</td><td>㈱ユカリア</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄1430ファーストコーポレーション㈱2792㈱ハニーズホールディングス3529アツギ㈱7774㈱ジャパン・ティッシュエンジニアリング※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260525_sentei.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（5/25）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260525_sentei.pdf" target="_blank" rel="noopener">原本PDF</a> （96.0 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260525_senteitorikeshi_1.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/25）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260525_senteitorikeshi_1.pdf" target="_blank" rel="noopener">原本PDF</a> （85.8 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱カイノス株式（4556）（２）選定取消日2026年5月26日（火）（３）経過措置2026年5月25日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月11日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260525_senteitorikeshi2.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/25）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260525_senteitorikeshi2.pdf" target="_blank" rel="noopener">原本PDF</a> （86.0 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱エルアイイーエイチ株式（5856）（２）選定取消日2026年5月26日（火）（３）経過措置2026年5月25日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月26日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="day">2026年05月22日（金）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月22日（金）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260522_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/22）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260522_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （87.4 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分、名古屋証券取引所市場分およびPTS分）㈱ジーフット株式（2686）（２）選定取消日2026年5月23日（土）（３）経過措置2026年5月22日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月23日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260522_4baikaizyo.pdf" target="_blank" rel="noopener">貸借取引の品貸し申込みにおける品貸料の最高料率に係る臨時措置の解除について（5/22）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260522_4baikaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （115.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3271</td><td>㈱ＴＨＥグローバル社</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸借取引の品貸し申込みにおける品貸料の最高料率を4倍とする臨時措置を実施しておりますが、2026年5月25日申込日分（5月26日品貸し申込み受付分）より当該臨時措置を解除することといたしましたので、ご通知申し上げます。</li><li>なお、当該銘柄に関して実施している制度信用取引の新規売りおよび制度信用取引による買いの現引きに伴う貸借取引の申込停止措置は継続しておりますので、念のため申し添えます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260522_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/22）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260522_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （144.3 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">6629</td><td>テクノホライゾン㈱</td><td></td></tr><tr><td class="code">7161</td><td>㈱じもとホールディングス</td><td></td></tr><tr><td class="code">1545</td><td>NEXT FUNDS NASDAQ-100Ⓡ（為替ヘッジなし）連動型上場投信</td><td></td></tr><tr><td class="code">6232</td><td>㈱ＡＣＳＬ</td><td></td></tr><tr><td class="code">7885</td><td>タカノ㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260522_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/22）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260522_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （133.9 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2168</td><td>㈱パソナグループ</td><td>イ、ロ</td></tr><tr><td class="code">4263</td><td>サスメド㈱</td><td>イ、ロ</td></tr><tr><td class="code">7487</td><td>小津産業㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄-該当なし※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260522_sentei.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（5/22）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260522_sentei.pdf" target="_blank" rel="noopener">原本PDF</a> （78.5 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260522_mashitanpo.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（5/22）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260522_mashitanpo.pdf" target="_blank" rel="noopener">原本PDF</a> （83.1 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3907</td><td>シリコンスタジオ㈱</td><td>東京、PTS / 50%（20%） ｜ 増担保の新規実施</td></tr></table>
 <ul class="points"><li>増担保の新規実施: シリコンスタジオ㈱（3907）</li><li>増担保の変更: 該当なし</li><li>増担保の解除: 該当なし</li></ul>
 </div>
-<div class="day">2026年05月21日（木）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月21日（木）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260521_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/21）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260521_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （92.6 KB）</div>
 <ul class="points"><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260521_10bai.pdf" target="_blank" rel="noopener">貸借取引品貸し申込みにおける品貸料の最高料率10倍適用について（5/21）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260521_10bai.pdf" target="_blank" rel="noopener">原本PDF</a> （118.6 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">543A</td><td>ARCHION㈱</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸付株券の調達が極めて困難であることから、2026年5月22日申込分（5月25日品貸し申込み受付分）から当分の間、貸借取引品貸し申込みにおける品貸料の最高料率を10倍とする臨時措置を講じることといたしましたので、ご通知申し上げます。</li><li>今後、貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用のお客様に対しましては、当該臨時措置の実施についてご説明いただくようお願い申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260521_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/21）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260521_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （133.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3135</td><td>㈱マーケットエンタープライズ</td><td></td></tr><tr><td class="code">2462</td><td>ライク㈱</td><td>イ、ロ</td></tr><tr><td class="code">2491</td><td>バリューコマース㈱</td><td>イ、ロ</td></tr><tr><td class="code">6656</td><td>インスペック㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄3135㈱マーケットエンタープライズ※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月20日（水）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月20日（水）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260520_4bai.pdf" target="_blank" rel="noopener">貸借取引品貸し申込みにおける品貸料の最高料率4倍適用について（5/20）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260520_4bai.pdf" target="_blank" rel="noopener">原本PDF</a> （117.8 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">543A</td><td>ARCHION㈱</td><td></td></tr></table>
 <ul class="points"><li>さて、下記の銘柄につきましては、貸付株券の調達が困難であることから、2026年5月21日申込分（5月22日品貸し申込み受付分）から当分の間、貸借取引品貸し申込みにおける品貸料の最高料率を4倍とする臨時措置を講じることといたしましたので、ご通知申し上げます。</li><li>今後、貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用のお客様に対しましては、当該臨時措置の実施についてご説明いただくようお願い申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260520_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/20）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260520_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （139.2 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3501</td><td>ＳＵＭＩＮＯＥ㈱</td><td>イ、ロ</td></tr><tr><td class="code">3900</td><td>㈱クラウドワークス</td><td>イ、ロ</td></tr><tr><td class="code">4886</td><td>あすか製薬ホールディングス㈱</td><td>イ、ロ</td></tr><tr><td class="code">7916</td><td>光村印刷㈱</td><td>イ、ロ</td></tr><tr><td class="code">9417</td><td>㈱スマートバリュー</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄-該当なし※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260520_kinrihenkou.pdf" target="_blank" rel="noopener">貸借取引金利等の公表（5/20）</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260520_kinrihenkou.pdf" target="_blank" rel="noopener">原本PDF</a> （75.2 KB）</div>
 <p class="meta">（要約なし — 原本PDFをご確認ください）</p>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260520_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/20）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260520_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （90.5 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借銘柄（東京証券取引所市場分およびPTS分）タカラバイオ㈱株式（4974）（２）選定取消日2026年5月21日（木）（３）経過措置2026年5月20日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月12日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260520_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/20）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260520_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （143.0 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2248</td><td>iFreeETF S&amp;P500（為替ヘッジあり）</td><td></td></tr><tr><td class="code">2857</td><td>i シェアーズ ドイツ国債 ETF（為替ヘッジあり）</td><td></td></tr><tr><td class="code">241A</td><td>㈱ ROXX</td><td></td></tr><tr><td class="code">3103</td><td>ユニチカ㈱</td><td></td></tr><tr><td class="code">2215</td><td>第一屋製パン㈱</td><td>ロ / イ</td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月19日（火）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月19日（火）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260519_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/19）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260519_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （134.8 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">5869</td><td>㈱早稲田学習研究会</td><td></td></tr><tr><td class="code">5074</td><td>テスホールディングス㈱</td><td>イ、ロ</td></tr><tr><td class="code">6659</td><td>㈱メディアリンクス</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄5869㈱早稲田学習研究会※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/19）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （155.9 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2247</td><td>iFreeETF S&amp;P500（為替ヘッジなし）</td><td></td></tr><tr><td class="code">282A</td><td>グローバルＸ 半導体・トップ 10-日本株式 ETF</td><td></td></tr><tr><td class="code">2849</td><td>グローバルＸ Morningstar 高配当 ESG-日本株式 ETF</td><td></td></tr><tr><td class="code">2854</td><td>グローバルＸ テック・トップ20-日本株式 ETF</td><td></td></tr><tr><td class="code">354A</td><td>iFreeETF ブルームバーグ日本株高配当 50 指数</td><td></td></tr><tr><td class="code">5726</td><td>㈱大阪チタニウムテクノロジーズ</td><td></td></tr><tr><td class="code">1671</td><td>ＷＴＩ原油価格連動型上場投信</td><td></td></tr><tr><td class="code">4288</td><td>㈱アズジェント</td><td></td></tr><tr><td class="code">7256</td><td>河西工業㈱</td><td></td></tr><tr><td class="code">8165</td><td>㈱千趣会</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月18日（月）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月18日（月）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260518_bunkatsuseisu.pdf" target="_blank" rel="noopener">貸借取引に係る株式分割による株式を受ける権利等の処理について（整数倍銘柄）（5/18）</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260518_bunkatsuseisu.pdf" target="_blank" rel="noopener">原本PDF</a> （94.5 KB）</div>
 <ul class="points"><li>さて、標記の件を下記の要領により実施いたしますのでご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/18）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （147.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2930</td><td>㈱北の達人コーポレーション</td><td></td></tr><tr><td class="code">3121</td><td>マーチャント・バンカーズ㈱</td><td></td></tr><tr><td class="code">6740</td><td>㈱ジャパンディスプレイ</td><td></td></tr><tr><td class="code">9553</td><td>㈱マイクロアド</td><td></td></tr><tr><td class="code">219A</td><td>Ｈｅａｒｔｓｅｅｄ㈱</td><td></td></tr><tr><td class="code">3205</td><td>㈱ダイドーリミテッド</td><td></td></tr><tr><td class="code">4425</td><td>Ｋｕｄａｎ㈱</td><td></td></tr><tr><td class="code">6522</td><td>㈱アスタリスク</td><td></td></tr><tr><td class="code">9130</td><td>共栄タンカー㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260518_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/18）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260518_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （136.5 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">4465</td><td>㈱ニイタカ</td><td></td></tr><tr><td class="code">2676</td><td>高千穂交易㈱</td><td>イ、ロ</td></tr><tr><td class="code">3678</td><td>㈱メディアドゥ</td><td>イ、ロ</td></tr><tr><td class="code">7600</td><td>㈱日本エム・ディ・エム</td><td>イ、ロ</td></tr><tr><td class="code">7746</td><td>岡本硝子㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄4465㈱ニイタカ※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260518_bunkatsuseisufuku.pdf" target="_blank" rel="noopener">貸借取引に係る株式分割による株式を受ける権利等の処理について（整数倍銘柄/福証）（5/18）</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260518_bunkatsuseisufuku.pdf" target="_blank" rel="noopener">原本PDF</a> （89.8 KB）</div>
 <ul class="points"><li>さて、標記の件を下記の要領により実施いたしますのでご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260518_bunkatsuseisunago.pdf" target="_blank" rel="noopener">貸借取引に係る株式分割による株式を受ける権利等の処理について（整数倍銘柄/名証）（5/18）</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260518_bunkatsuseisunago.pdf" target="_blank" rel="noopener">原本PDF</a> （88.9 KB）</div>
 <ul class="points"><li>さて、標記の件を下記の要領により実施いたしますのでご通知申し上げます。</li></ul>
 </div>
-<div class="day">2026年05月15日（金）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月15日（金）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260515_mashitanpo.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（5/15）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260515_mashitanpo.pdf" target="_blank" rel="noopener">原本PDF</a> （76.5 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">281A</td><td>インフォメティス㈱</td><td>東京、PTS / 30% ｜ 増担保の解除</td></tr></table>
 <ul class="points"><li>増担保の新規実施: 該当なし</li><li>増担保の変更: 該当なし</li><li>増担保の解除: インフォメティス㈱（281A）（解除日: 2026年5月18日）</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/15）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （135.1 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">4440</td><td>㈱ヴィッツ</td><td></td></tr><tr><td class="code">5491</td><td>日本金属㈱</td><td></td></tr><tr><td class="code">6278</td><td>ユニオンツール㈱</td><td></td></tr><tr><td class="code">7378</td><td>㈱アシロ</td><td></td></tr><tr><td class="code">8835</td><td>太平洋興発㈱</td><td></td></tr><tr><td class="code">3444</td><td>㈱菊池製作所</td><td></td></tr><tr><td class="code">5381</td><td>マイポックス㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260515_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/15）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260515_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （138.8 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2211</td><td>㈱不二家</td><td></td></tr><tr><td class="code">2489</td><td>㈱アドウェイズ</td><td></td></tr><tr><td class="code">3796</td><td>㈱いい生活</td><td></td></tr><tr><td class="code">3900</td><td>㈱クラウドワークス</td><td></td></tr><tr><td class="code">3984</td><td>㈱ユーザーローカル</td><td></td></tr><tr><td class="code">4165</td><td>㈱プレイド</td><td></td></tr><tr><td class="code">7600</td><td>㈱日本エム・ディ・エム</td><td></td></tr><tr><td class="code">180A</td><td>グローバルＸ 超長期米国債 ETF</td><td>イ、ロ</td></tr><tr><td class="code">1909</td><td>日本ドライケミカル㈱</td><td>イ、ロ</td></tr><tr><td class="code">6096</td><td>㈱レアジョブ</td><td>イ、ロ</td></tr><tr><td class="code">6262</td><td>㈱ＰＥＧＡＳＵＳ</td><td>イ、ロ</td></tr><tr><td class="code">7035</td><td>ａｎｄ ｆａｃｔｏｒｙ㈱</td><td>イ、ロ</td></tr><tr><td class="code">7879</td><td>㈱ノダ</td><td>イ、ロ</td></tr><tr><td class="code">8141</td><td>新光商事㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄2211㈱不二家2489㈱アドウェイズ3796㈱いい生活3900㈱クラウドワークス3984㈱ユーザーローカル4165㈱プレイド7600㈱日本エム・ディ・エム※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260515_senteitorikeshi2.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/15）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260515_senteitorikeshi2.pdf" target="_blank" rel="noopener">原本PDF</a> （81.9 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱ユタカ技研株式（7229）（２）選定取消日2026年5月16日（土）（３）経過措置2026年5月15日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月10日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260515_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/15）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260515_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （83.0 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱ビーアールホールディングス株式（1726）（２）選定取消日2026年5月16日（土）（３）経過措置2026年5月15日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月1日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="day">2026年05月14日（木）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月14日（木）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260514_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/14）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260514_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （129.3 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">8614</td><td>東洋証券㈱</td><td></td></tr><tr><td class="code">3544</td><td>サツドラホールディングス㈱</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260514_koukan.pdf" target="_blank" rel="noopener">株式交換に伴う貸借取引対象銘柄の選定取消し等について（5/14）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260514_koukan.pdf" target="_blank" rel="noopener">原本PDF</a> （130.6 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し貸借銘柄（東京証券取引所市場分）東邦チタニウム㈱株式（5727）選定取消日2026年5月28日（木）（PTS分）東邦チタニウム㈱株式（5727）選定取消日2026年5月28日（木）２．上記１．により選定取消しを行う銘柄に係る貸借取引の取扱い（１）貸借取引残高に係る取扱い次のいずれかを貴社に選択していただきます。</li><li>②甲について、選定取消日以降も貸借取引残高を継続し、株式交換の日（当該日が休日の場合は株式交換の日以降最初の売買日。</li><li>当該申込み後の継続残高については、株式交換の日の前営業日（約定日）まで返済申込みの受付は行わず、当該期間の貸借値段については甲の申込最終日の貸借値段を適用します。</li><li>また、貸株超過となった場合には、下記（２）の取扱いにより決定される品貸料率を適用します。</li><li>イ．品貸申込は、甲について、１日当りの料率により最低単位株数の整数倍で行うものとします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260514_gobatei.pdf" target="_blank" rel="noopener">貸借取引の申込停止措置の実施について（5/14）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260514_gobatei.pdf" target="_blank" rel="noopener">原本PDF</a> （152.2 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">543A</td><td>ARCHION㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しましても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明いただくようお願い申し上げます。</li><li>また、今後、急激な貸付株券の不足状態の発生等により、「貸借取引貸株超過銘柄等に対する取扱い」に定める品貸料の最高料率にかかる臨時措置を実施することがございます。</li><li>記1．対象銘柄コード対象銘柄停止の対象543AARCHION㈱イ、ロ（停止の対象）イ．当日午後立会開始時以降の制度信用取引の新規売り(自己の信用売りを含む。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li><li>本措置実施前に既に金融商品取引所またはPTSに発注されているイ．およびハ．における注文ならびに既に金融商品取引業者で受付けている制度信用取引による買いの現引きにかかる貸借取引の申込みにつきましては対象外といたします。</li></ul>
 </div>
-<div class="day">2026年05月13日（水）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月13日（水）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260513_senteitorikeshi2.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/13）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260513_senteitorikeshi2.pdf" target="_blank" rel="noopener">原本PDF</a> （84.4 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）㈱植松商会株式（9914）（２）選定取消日2026年5月14日（木）（３）経過措置2026年5月13日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年9月21日）の前日（取引所の休業日を除く。</li><li>なお、上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260513_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/13）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260513_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （86.3 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借融資銘柄（東京証券取引所市場分およびPTS分）カワセコンピュータサプライ㈱株式（7851）（２）選定取消日2026年5月14日（木）（３）経過措置2026年5月13日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年10月1日）の前日（取引所の休業日を除く。</li><li>なお、上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260513_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/13）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260513_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （132.5 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">215A</td><td>㈱タイミー</td><td></td></tr><tr><td class="code">4676</td><td>㈱フジ・メディア・ホールディングス</td><td></td></tr><tr><td class="code">6629</td><td>テクノホライゾン㈱</td><td></td></tr><tr><td class="code">9227</td><td>マイクロ波化学㈱</td><td></td></tr><tr><td class="code">3294</td><td>㈱イーグランド</td><td>ロ / イ</td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260513_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/13）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260513_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （130.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">2168</td><td>㈱パソナグループ</td><td></td></tr><tr><td class="code">543A</td><td>ARCHION㈱</td><td></td></tr><tr><td class="code">2497</td><td>ユナイテッド㈱</td><td>イ、ロ</td></tr><tr><td class="code">3645</td><td>㈱メディカルネット</td><td>イ、ロ</td></tr><tr><td class="code">4367</td><td>広栄化学㈱</td><td>イ、ロ</td></tr><tr><td class="code">6038</td><td>㈱イード</td><td>イ、ロ</td></tr><tr><td class="code">6197</td><td>㈱ソラスト</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄2168㈱パソナグループ543AARCHION㈱※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月12日（火）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月12日（火）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260512_bunkatsuseisu.pdf" target="_blank" rel="noopener">貸借取引に係る受益権分割による受益権を受ける権利等の処理について（整数倍銘柄）（5/12）</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260512_bunkatsuseisu.pdf" target="_blank" rel="noopener">原本PDF</a> （90.0 KB）</div>
 <ul class="points"><li>さて、標記の件を下記の要領により実施いたしますのでご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260512_furikaekessaikaisei.pdf" target="_blank" rel="noopener">「振替決済口座管理規定」の一部改正について</a></h3>
 <div class="meta"><span class="chip">その他</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260512_furikaekessaikaisei.pdf" target="_blank" rel="noopener">原本PDF</a> （16.5 KB）</div>
 <ul class="points"><li>なお、本件についてご不明な点などがございましたら、お手数ではございますが、弊社窓口までご照会くださいますようお願いいたします。</li><li>今後とも、弊社の業務運営にご理解、ご協力を賜りますよう、よろしくお願い申し上げます。</li><li>敬具記１．「振替決済口座管理規定」の一部改正新旧対照表・・・別紙〔改正内容〕・規定において引用している「法人番号」の定義規定を番号法第２条第15項から同条第16項へ変更いたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260512_senteitorikeshi2.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/12）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260512_senteitorikeshi2.pdf" target="_blank" rel="noopener">原本PDF</a> （87.2 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借銘柄（東京証券取引所市場分、名古屋証券取引所市場分およびPTS分）㈱豊田自動織機株式（6201）（２）選定取消日2026年5月13日（水）（３）経過措置2026年5月12日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年6月1日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260512_mashitanpo.pdf" target="_blank" rel="noopener">貸借取引銘柄別増担保金徴収措置の実施等について（5/12）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260512_mashitanpo.pdf" target="_blank" rel="noopener">原本PDF</a> （75.7 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3936</td><td>㈱グローバルウェイ</td><td>東京、PTS / 30% ｜ 増担保の解除</td></tr></table>
 <ul class="points"><li>増担保の新規実施: 該当なし</li><li>増担保の変更: 該当なし</li><li>増担保の解除: ㈱グローバルウェイ（3936）（解除日: 2026年5月13日）</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260512_senteitorikeshi.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の選定取消しについて（5/12）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260512_senteitorikeshi.pdf" target="_blank" rel="noopener">原本PDF</a> （85.4 KB）</div>
 <ul class="points"><li>敬具記１．貸借取引対象銘柄の選定取消し（１）貸借銘柄（東京証券取引所市場分およびPTS分）ラクスル㈱株式（4384）（２）選定取消日2026年5月13日（水）（３）経過措置2026年5月12日（約定日）現在における当該銘柄に係る貸借取引残高については、上場廃止日（2026年5月29日）の前日（取引所の休業日を除く。</li><li>上場廃止日が変更された場合には、返済申込みの取扱いについてあらためてご通知いたします。</li><li>なお、選定取消日をもって、現在当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等を解除することといたします。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260512_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/12）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260512_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （127.1 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">5074</td><td>テスホールディングス㈱</td><td></td></tr><tr><td class="code">6038</td><td>㈱イード</td><td></td></tr><tr><td class="code">2371</td><td>㈱カカクコム</td><td>イ、ロ</td></tr><tr><td class="code">4392</td><td>ＦＩＧ㈱</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄5074テスホールディングス㈱6038㈱イード※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="day">2026年05月11日（月）</div>
-<div class="card">
+<div class="day" data-month="2026-05">2026年05月11日（月）</div>
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260511_iten.pdf" target="_blank" rel="noopener">株式移転に伴う貸借取引対象銘柄の選定取消しおよび追加等について（5/11）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260511_iten.pdf" target="_blank" rel="noopener">原本PDF</a> （163.0 KB）</div>
 <ul class="points"><li>（注2）選定取消日において、当該銘柄に対して実施している貸借取引にかかる個別銘柄に関する制限措置等が解除されていない場合、選定取消日をもって、解除することといたします。</li><li>②甲について、選定取消日以降も貸借取引残高を継続し、株式移転期日となる6月1日（月）において移転比率に応じて読み替えた親会社株式（表記載の乙。</li><li>当該申込み後の継続残高については、株式移転期日の前営業日（約定日）まで返済申込みの受付は行わず、当該期間の貸借値段については甲の申込最終日の貸借値段を適用します。</li><li>また、貸株超過となった場合には、下記（２）の取扱いにより決定される品貸料率を適用します。</li><li>ハ．前澤工業㈱株式および前澤化成工業㈱株式の東証市場分の貸借取引貸株残高については、割り当てられる前澤ホールディングス㈱株式が貸借融資銘柄となるため、2026年11月27日（金）（約定日）までに返済申込みを行ってください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260511_sentei.pdf" target="_blank" rel="noopener">貸借取引対象銘柄の追加について（5/11）</a></h3>
 <div class="meta"><span class="chip">選定関係</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260511_sentei.pdf" target="_blank" rel="noopener">原本PDF</a> （86.5 KB）</div>
 <ul class="points"><li>さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260511_seigen2.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/11）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260511_seigen2.pdf" target="_blank" rel="noopener">原本PDF</a> （124.1 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">8283</td><td>㈱ＰＡＬＴＡＣ</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄-該当なし※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260511_seigenkaizyo.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の解除等について（5/11）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260511_seigenkaizyo.pdf" target="_blank" rel="noopener">原本PDF</a> （128.4 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3134</td><td>Ｈａｍｅｅ㈱</td><td></td></tr><tr><td class="code">3903</td><td>㈱ｇｕｍｉ</td><td></td></tr><tr><td class="code">7236</td><td>㈱ティラド</td><td></td></tr></table>
 <ul class="points"><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
-<div class="card">
+<div class="card" data-month="2026-05">
 <h3><a href="https://www.taisyaku.jp/media/20260511_seigen.pdf" target="_blank" rel="noopener">貸借取引の銘柄別制限措置の実施等について（5/11）</a></h3>
 <div class="meta"><span class="chip">制限措置等</span><a class="pdf-link" href="https://www.taisyaku.jp/media/20260511_seigen.pdf" target="_blank" rel="noopener">原本PDF</a> （134.2 KB）</div>
 <table><tr><th>コード</th><th>銘柄名</th><th>補足</th></tr><tr><td class="code">3501</td><td>ＳＵＭＩＮＯＥ㈱</td><td></td></tr><tr><td class="code">1545</td><td>ＮＥＸＴ ＦＵＮＤＳ ＮＡＳＤＡＱ－１００Ⓡ（為替ヘッジなし）連動型上場投信</td><td>イ、ロ</td></tr><tr><td class="code">3686</td><td>㈱ディー・エル・イー</td><td>イ、ロ</td></tr><tr><td class="code">4446</td><td>Ｌｉｎｋ－Ｕグループ㈱</td><td>イ、ロ</td></tr><tr><td class="code">6047</td><td>㈱Ｇｕｎｏｓｙ</td><td>イ、ロ</td></tr><tr><td class="code">6264</td><td>㈱マルマエ</td><td>イ、ロ</td></tr></table>
 <ul class="points"><li>貴社におかれましては、当該銘柄の置かれている状況をご理解のうえ貸借取引をご利用いただくとともに、併せて当該銘柄の制度信用取引をご利用されるお客様に対しても、同措置による制度信用取引のご利用等にかかる制約についてご注意、ご説明をお願い申し上げます。</li><li>記１．貸株利用等に関する注意喚起の通知コード対象銘柄3501ＳＵＭＩＮＯＥ㈱※当該銘柄の制度信用取引をご利用されるお客様に対しては、貸借取引の申込制限措置等の実施の可能性がある旨ご注意、ご説明いただくようお願い申し上げます。</li><li>また、東証市場銘柄が対象の場合、PTS市場における貸借取引対象銘柄にも同じ措置が適用されますのでご留意ください。</li></ul>
 </div>
 </main>
+
 <footer>
   出典: <a href="https://www.taisyaku.jp/news/" target="_blank" rel="noopener">日本証券金融株式会社 お知らせ</a>
   ｜ 本ページは公開PDFを自動要約した非公式まとめです。正確な内容は必ず原本PDFをご確認ください。
 </footer>
+
 <script>
-document.getElementById('q').addEventListener('input', function () {
-  const q = this.value.trim().toLowerCase();
-  document.querySelectorAll('.card').forEach(c => {
-    c.classList.toggle('hidden', q && !c.textContent.toLowerCase().includes(q));
+(function() {
+  var ALL_STOCKS = [{"date": "2026-06-12", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/12）", "docUrl": "https://www.taisyaku.jp/media/20260612_seigenkaizyo.pdf", "code": "4100", "name": "戸田工業㈱", "note": "", "section": "貸株利用等に関する注意喚起の通知", "category": "売り禁解除"}, {"date": "2026-06-12", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/12）", "docUrl": "https://www.taisyaku.jp/media/20260612_seigenkaizyo.pdf", "code": "2523", "name": "ＭＡＸＩＳトピックス（除く金融）上場投信", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-06-12", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/12）", "docUrl": "https://www.taisyaku.jp/media/20260612_seigenkaizyo.pdf", "code": "3204", "name": "㈱トーア紡コーポレーション", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-06-12", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/12）", "docUrl": "https://www.taisyaku.jp/media/20260612_seigen.pdf", "code": "3662", "name": "㈱エイチームホールディングス", "note": "", "section": "貸株利用等に関する注意喚起の通知", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "2198", "name": "アイ・ケイ・ケイホールディングス㈱", "note": "", "section": "貸株利用等に関する注意喚起の通知", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "3178", "name": "チムニー㈱", "note": "", "section": "貸株利用等に関する注意喚起の通知", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "3553", "name": "共和レザー㈱", "note": "", "section": "貸株利用等に関する注意喚起の通知", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "4346", "name": "㈱ＮＥＸＹＺ．Ｇｒｏｕｐ", "note": "", "section": "貸株利用等に関する注意喚起の通知", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "7421", "name": "カッパ・クリエイト㈱", "note": "", "section": "貸株利用等に関する注意喚起の通知", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "1325", "name": "ＮＥＸＴ ＦＵＮＤＳ ブラジル株式指数・ボベスパ連動型上場投信", "note": "イ、ロ", "section": "申込停止措置の実施（実施日（約定日）", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "2523", "name": "ＭＡＸＩＳトピックス（除く金融）上場投信", "note": "イ、ロ", "section": "申込停止措置の実施（実施日（約定日）", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "3653", "name": "㈱モルフォ", "note": "イ、ロ", "section": "申込停止措置の実施（実施日（約定日）", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "3807", "name": "㈱フィスコ", "note": "イ、ロ", "section": "申込停止措置の実施（実施日（約定日）", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigen.pdf", "code": "4436", "name": "㈱ミンカブ・ジ・インフォノイド", "note": "イ、ロ", "section": "申込停止措置の実施（実施日（約定日）", "category": "売り禁実施"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の品貸し申込みにおける品貸料の最高料率に係る臨時措置の解除について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_4baikaizyo.pdf", "code": "7183", "name": "あんしん保証㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "6614", "name": "㈱シキノハイテック", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "6926", "name": "岡谷電機産業㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "3987", "name": "エコモット㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "4167", "name": "㈱ココペリ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "5998", "name": "㈱アドバネクス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "6027", "name": "弁護士ドットコム㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "6659", "name": "㈱メディアリンクス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "9376", "name": "㈱ユーラシア旅行社", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-11", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/11）", "docUrl": "https://www.taisyaku.jp/media/20260611_seigenkaizyo.pdf", "code": "7183", "name": "あんしん保証㈱", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_mashitanpo.pdf", "code": "3907", "name": "シリコンスタジオ㈱", "note": "東京、PTS / 30% ｜ 増担保の解除", "section": "", "category": "増担保解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_mashitanpo.pdf", "code": "6613", "name": "㈱QD レーザ", "note": "東京、PTS / 30% ｜ 増担保の解除", "section": "", "category": "増担保解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "㈱マーケットエンタープライズ（3135）に係る貸借取引のご利用について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_taisyakuriyou.pdf", "code": "3135", "name": "㈱マーケットエンタープライズ", "note": "", "section": "", "category": "その他"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf", "code": "178A", "name": "グローバルＸ 革新的優良企業 ETF", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf", "code": "5253", "name": "カバー㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf", "code": "543A", "name": "ARCHION㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf", "code": "6245", "name": "㈱ヒラノテクシード", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf", "code": "6993", "name": "大黒屋ホールディングス㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigenkaizyo.pdf", "code": "9130", "name": "共栄タンカー㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigen.pdf", "code": "1433", "name": "ベステラ㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigen.pdf", "code": "2938", "name": "㈱オカムラ食品工業", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigen.pdf", "code": "3559", "name": "㈱ピーバンドットコム", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigen.pdf", "code": "3690", "name": "㈱イルグルム", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigen.pdf", "code": "6031", "name": "ＺＥＴＡ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-10", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/10）", "docUrl": "https://www.taisyaku.jp/media/20260610_seigen.pdf", "code": "6888", "name": "アクモス㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-09", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/9）", "docUrl": "https://www.taisyaku.jp/media/20260609_seigenkaizyo.pdf", "code": "6203", "name": "豊和工業㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-09", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/9）", "docUrl": "https://www.taisyaku.jp/media/20260609_seigenkaizyo.pdf", "code": "4347", "name": "ブロードメディア㈱", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "2689", "name": "オルバヘルスケアホールディングス㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "3041", "name": "㈱ビューティカダンホールディングス", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "3082", "name": "㈱きちりホールディングス", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "3154", "name": "メディアスホールディングス㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "3191", "name": "㈱ジョイフル本田", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "3196", "name": "㈱ホットランドホールディングス", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "7371", "name": "Ｚｅｎｋｅｎ㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_seigen.pdf", "code": "8928", "name": "穴吹興産㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_mashitanpo2.pdf", "code": "8105", "name": "Ｂｉｔｃｏｉｎ Ｊａｐａｎ㈱", "note": "東京、PTS / 50%（20%） ｜ 増担保の新規実施", "section": "", "category": "増担保実施"}, {"date": "2026-06-08", "month": "2026-06", "docTitle": "貸借取引品貸し申込みにおける品貸料の最低料率引き上げについて （6/8）", "docUrl": "https://www.taisyaku.jp/media/20260608_tokubetsu.pdf", "code": "3135", "name": "㈱マーケットエンタープライズ", "note": "", "section": "", "category": "その他"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf", "code": "2087", "name": "NZAM 上場投信 NASDAQ100（為替ヘッジあり）", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf", "code": "2558", "name": "ＭＡＸＩＳ米国株式（Ｓ＆Ｐ５００）上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf", "code": "2559", "name": "ＭＡＸＩＳ全世界株式（オール・カントリー）上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf", "code": "5367", "name": "㈱ニッカトー", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf", "code": "3168", "name": "㈱ＭＥＲＦ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigenkaizyo.pdf", "code": "543A", "name": "ARCHION㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigen.pdf", "code": "1799", "name": "第一建設工業㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigen.pdf", "code": "3193", "name": "㈱エターナルホスピタリティグループ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigen.pdf", "code": "2217", "name": "モロゾフ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigen.pdf", "code": "3664", "name": "㈱ＷＩＺＥ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-05", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/5）", "docUrl": "https://www.taisyaku.jp/media/20260605_seigen.pdf", "code": "5589", "name": "㈱オートサーバー", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigenkaizyo.pdf", "code": "2648", "name": "NEXT FUNDSブルームバーグ米国国債（7-10年）インデックス（為替ヘッジあり）連動型上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigenkaizyo.pdf", "code": "3103", "name": "ユニチカ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigenkaizyo.pdf", "code": "3796", "name": "㈱いい生活", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigenkaizyo.pdf", "code": "7725", "name": "㈱インターアクション", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigenkaizyo.pdf", "code": "2859", "name": "NEXT FUNDS ユーロ・ストックス50指数（為替ヘッジあり）連動型上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引品貸し申込みにおける品貸料の最高料率10倍適用について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_10bai.pdf", "code": "3135", "name": "㈱マーケットエンタープライズ", "note": "", "section": "", "category": "その他"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引品貸し申込みにおける品貸料の最高料率4倍適用について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_4bai.pdf", "code": "7183", "name": "あんしん保証㈱", "note": "", "section": "", "category": "その他"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "1366", "name": "iFreeETF 日経平均ダブルインバース・インデックス", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "1368", "name": "iFreeETF TOPIXダブルインバース（-2倍）指数", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "3667", "name": "㈱ｅｎｉｓｈ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "4449", "name": "㈱ギフティ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "1419", "name": "タマホーム㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "3457", "name": "㈱Ａｎｄ Ｄｏホールディングス", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "4382", "name": "ＨＥＲＯＺ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "5129", "name": "㈱ＦＩＸＥＲ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-04", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/4）", "docUrl": "https://www.taisyaku.jp/media/20260604_seigen.pdf", "code": "6522", "name": "㈱アスタリスク", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_mashitanpo.pdf", "code": "6072", "name": "地盤ネットホールディングス㈱", "note": "東京、PTS / 50%（20%） ｜ 増担保の新規実施", "section": "", "category": "増担保実施"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_mashitanpo.pdf", "code": "485A", "name": "㈱パワーエックス", "note": "東京、PTS / 30% ｜ 増担保の解除", "section": "", "category": "増担保解除"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_seigenkaizyo.pdf", "code": "6619", "name": "ダブル・スコープ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_seigenkaizyo.pdf", "code": "8708", "name": "アイザワ証券グループ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_seigenkaizyo.pdf", "code": "4031", "name": "片倉コープアグリ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_seigen.pdf", "code": "3457", "name": "㈱Ａｎｄ Ｄｏホールディングス", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_seigen.pdf", "code": "4060", "name": "rakumo㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_seigen.pdf", "code": "6036", "name": "ＫｅｅＰｅｒ技研㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-03", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/3）", "docUrl": "https://www.taisyaku.jp/media/20260603_seigen.pdf", "code": "7213", "name": "レシップホールディングス㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-02", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/2）", "docUrl": "https://www.taisyaku.jp/media/20260602_seigen.pdf", "code": "4512", "name": "わかもと製薬㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-02", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/2）", "docUrl": "https://www.taisyaku.jp/media/20260602_seigen.pdf", "code": "5589", "name": "㈱オートサーバー", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-02", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/2）", "docUrl": "https://www.taisyaku.jp/media/20260602_seigen.pdf", "code": "2162", "name": "ｎｍｓ ホールディングス㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-02", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/2）", "docUrl": "https://www.taisyaku.jp/media/20260602_seigen.pdf", "code": "3548", "name": "㈱バロックジャパンリミテッド", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-02", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/2）", "docUrl": "https://www.taisyaku.jp/media/20260602_seigen.pdf", "code": "4428", "name": "㈱シノプス", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-02", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/2）", "docUrl": "https://www.taisyaku.jp/media/20260602_seigen.pdf", "code": "6073", "name": "㈱アサンテ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-02", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/2）", "docUrl": "https://www.taisyaku.jp/media/20260602_seigen.pdf", "code": "7049", "name": "㈱識学", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-06-01", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の実施等について（6/1）", "docUrl": "https://www.taisyaku.jp/media/20260601_seigen.pdf", "code": "6245", "name": "㈱ヒラノテクシード", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-06-01", "month": "2026-06", "docTitle": "貸借取引の品貸し申込みにおける品貸料の最高料率に係る臨時措置の解除について（6/1）", "docUrl": "https://www.taisyaku.jp/media/20260601_10baikaizyo.pdf", "code": "543A", "name": "ARCHION㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-06-01", "month": "2026-06", "docTitle": "貸借取引の銘柄別制限措置の解除等について（6/1）", "docUrl": "https://www.taisyaku.jp/media/20260601_seigenkaizyo.pdf", "code": "6496", "name": "㈱中北製作所", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "2217", "name": "モロゾフ㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "3687", "name": "㈱フィックスターズ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "5367", "name": "㈱ニッカトー", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "6073", "name": "㈱アサンテ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "6203", "name": "豊和工業㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "3053", "name": "㈱ペッパーフードサービス", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "4800", "name": "オリコン㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "6926", "name": "岡谷電機産業㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigen.pdf", "code": "7885", "name": "タカノ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_mashitanpo.pdf", "code": "278A", "name": "Terra Drone ㈱", "note": "東京、PTS / 30% ｜ 増担保の解除", "section": "", "category": "増担保解除"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigenkaizyo2.pdf", "code": "2168", "name": "㈱パソナグループ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigenkaizyo2.pdf", "code": "3501", "name": "ＳＵＭＩＮＯＥ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigenkaizyo2.pdf", "code": "7317", "name": "㈱松屋アールアンドディ", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-05-29", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/29）", "docUrl": "https://www.taisyaku.jp/media/20260529_seigenkaizyo2.pdf", "code": "8554", "name": "㈱南日本銀行", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "1430", "name": "ファーストコーポレーション㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "2791", "name": "大黒天物産㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "2792", "name": "㈱ハニーズホールディングス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "3791", "name": "㈱ＩＧポート", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "3994", "name": "㈱マネーフォワード", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "4465", "name": "㈱ニイタカ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "5869", "name": "㈱早稲田学習研究会", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "6664", "name": "㈱オプトエレクトロニクス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "8887", "name": "㈱シーラホールディングス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "9278", "name": "ブックオフグループホールディングス㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "9369", "name": "㈱キユーソー流通システム", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "2462", "name": "ライク㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "3160", "name": "㈱大光", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "3547", "name": "㈱ユニシアホールディングス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "3892", "name": "㈱岡山製紙", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "7487", "name": "小津産業㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "9216", "name": "ビーウィズ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "9765", "name": "㈱オオバ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "1419", "name": "タマホーム㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "6047", "name": "㈱Ｇｕｎｏｓｙ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigenkaizyo.pdf", "code": "7725", "name": "㈱インターアクション", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigen.pdf", "code": "3140", "name": "ＢＲＵＮＯ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigen.pdf", "code": "4420", "name": "イーソル㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-28", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/28）", "docUrl": "https://www.taisyaku.jp/media/20260528_seigen.pdf", "code": "4933", "name": "㈱Ｉ－ｎｅ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "2325", "name": "㈱ＮＪＳ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "2558", "name": "ＭＡＸＩＳ米国株式（Ｓ＆Ｐ５００）上場投信", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "2559", "name": "ＭＡＸＩＳ全世界株式（オール・カントリー）上場投信", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "3028", "name": "㈱アルペン", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "3140", "name": "ＢＲＵＮＯ㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "3277", "name": "㈱サンセイランディック", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "4482", "name": "㈱ウィルズ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "4933", "name": "㈱Ｉ－ｎｅ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "7033", "name": "㈱マネジメントソリューションズ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "7962", "name": "㈱キングジム", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-27", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/27）", "docUrl": "https://www.taisyaku.jp/media/20260527_seigen.pdf", "code": "9227", "name": "マイクロ波化学㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigen.pdf", "code": "3135", "name": "㈱マーケットエンタープライズ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigen.pdf", "code": "3160", "name": "㈱大光", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigen.pdf", "code": "3547", "name": "㈱ユニシアホールディングス", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigen.pdf", "code": "3892", "name": "㈱岡山製紙", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigen.pdf", "code": "9765", "name": "㈱オオバ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_mashitanpo.pdf", "code": "6613", "name": "㈱QD レーザ", "note": "東京、PTS / 50%（20%） ｜ 増担保の新規実施", "section": "", "category": "増担保実施"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "1566", "name": "上場インデックスファンド新興国債券", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "2015", "name": "iFreeETF 米国国債 7-10 年（為替ヘッジなし）", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "2016", "name": "iFreeETF 米国国債 7-10 年（為替ヘッジあり）", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "4418", "name": "㈱JDSC", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "7256", "name": "河西工業㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "6264", "name": "㈱マルマエ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "3137", "name": "㈱ファンデリー", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-26", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/26）", "docUrl": "https://www.taisyaku.jp/media/20260526_seigenkaizyo.pdf", "code": "4436", "name": "㈱ミンカブ・ジ・インフォノイド", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "5132", "name": "㈱ｐｌｕｓｚｅｒｏ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "5258", "name": "㈱トランザクション・メディア・ネットワークス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "3676", "name": "㈱デジタルハーツホールディングス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "8934", "name": "サンフロンティア不動産㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "2241", "name": "MAXIS NYダウ上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "2242", "name": "MAXIS NYダウ上場投信（為替ヘッジあり）", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "2846", "name": "NEXT FUNDSダウ・ジョーンズ工業株30種平均株価（為替ヘッジあり）連動型上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "4229", "name": "群栄化学工業㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigenkaizyo.pdf", "code": "4237", "name": "フジプレアム㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigen.pdf", "code": "1430", "name": "ファーストコーポレーション㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigen.pdf", "code": "2792", "name": "㈱ハニーズホールディングス", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigen.pdf", "code": "3529", "name": "アツギ㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigen.pdf", "code": "7774", "name": "㈱ジャパン・ティッシュエンジニアリング", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-25", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/25）", "docUrl": "https://www.taisyaku.jp/media/20260525_seigen.pdf", "code": "286A", "name": "㈱ユカリア", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の品貸し申込みにおける品貸料の最高料率に係る臨時措置の解除について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_4baikaizyo.pdf", "code": "3271", "name": "㈱ＴＨＥグローバル社", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigenkaizyo.pdf", "code": "6629", "name": "テクノホライゾン㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigenkaizyo.pdf", "code": "7161", "name": "㈱じもとホールディングス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigenkaizyo.pdf", "code": "1545", "name": "NEXT FUNDS NASDAQ-100Ⓡ（為替ヘッジなし）連動型上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigenkaizyo.pdf", "code": "6232", "name": "㈱ＡＣＳＬ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigenkaizyo.pdf", "code": "7885", "name": "タカノ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigen.pdf", "code": "2168", "name": "㈱パソナグループ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigen.pdf", "code": "4263", "name": "サスメド㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_seigen.pdf", "code": "7487", "name": "小津産業㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-22", "month": "2026-05", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（5/22）", "docUrl": "https://www.taisyaku.jp/media/20260522_mashitanpo.pdf", "code": "3907", "name": "シリコンスタジオ㈱", "note": "東京、PTS / 50%（20%） ｜ 増担保の新規実施", "section": "", "category": "増担保実施"}, {"date": "2026-05-21", "month": "2026-05", "docTitle": "貸借取引品貸し申込みにおける品貸料の最高料率10倍適用について（5/21）", "docUrl": "https://www.taisyaku.jp/media/20260521_10bai.pdf", "code": "543A", "name": "ARCHION㈱", "note": "", "section": "", "category": "その他"}, {"date": "2026-05-21", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/21）", "docUrl": "https://www.taisyaku.jp/media/20260521_seigen.pdf", "code": "3135", "name": "㈱マーケットエンタープライズ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-21", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/21）", "docUrl": "https://www.taisyaku.jp/media/20260521_seigen.pdf", "code": "2462", "name": "ライク㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-21", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/21）", "docUrl": "https://www.taisyaku.jp/media/20260521_seigen.pdf", "code": "2491", "name": "バリューコマース㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-21", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/21）", "docUrl": "https://www.taisyaku.jp/media/20260521_seigen.pdf", "code": "6656", "name": "インスペック㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引品貸し申込みにおける品貸料の最高料率4倍適用について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_4bai.pdf", "code": "543A", "name": "ARCHION㈱", "note": "", "section": "", "category": "その他"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigen.pdf", "code": "3501", "name": "ＳＵＭＩＮＯＥ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigen.pdf", "code": "3900", "name": "㈱クラウドワークス", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigen.pdf", "code": "4886", "name": "あすか製薬ホールディングス㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigen.pdf", "code": "7916", "name": "光村印刷㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigen.pdf", "code": "9417", "name": "㈱スマートバリュー", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigenkaizyo.pdf", "code": "2248", "name": "iFreeETF S&P500（為替ヘッジあり）", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigenkaizyo.pdf", "code": "2857", "name": "i シェアーズ ドイツ国債 ETF（為替ヘッジあり）", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigenkaizyo.pdf", "code": "241A", "name": "㈱ ROXX", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigenkaizyo.pdf", "code": "3103", "name": "ユニチカ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-20", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/20）", "docUrl": "https://www.taisyaku.jp/media/20260520_seigenkaizyo.pdf", "code": "2215", "name": "第一屋製パン㈱", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigen.pdf", "code": "5869", "name": "㈱早稲田学習研究会", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigen.pdf", "code": "5074", "name": "テスホールディングス㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigen.pdf", "code": "6659", "name": "㈱メディアリンクス", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "2247", "name": "iFreeETF S&P500（為替ヘッジなし）", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "282A", "name": "グローバルＸ 半導体・トップ 10-日本株式 ETF", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "2849", "name": "グローバルＸ Morningstar 高配当 ESG-日本株式 ETF", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "2854", "name": "グローバルＸ テック・トップ20-日本株式 ETF", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "354A", "name": "iFreeETF ブルームバーグ日本株高配当 50 指数", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "5726", "name": "㈱大阪チタニウムテクノロジーズ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "1671", "name": "ＷＴＩ原油価格連動型上場投信", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "4288", "name": "㈱アズジェント", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "7256", "name": "河西工業㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-19", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/19）", "docUrl": "https://www.taisyaku.jp/media/20260519_seigenkaizyo.pdf", "code": "8165", "name": "㈱千趣会", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "2930", "name": "㈱北の達人コーポレーション", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "3121", "name": "マーチャント・バンカーズ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "6740", "name": "㈱ジャパンディスプレイ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "9553", "name": "㈱マイクロアド", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "219A", "name": "Ｈｅａｒｔｓｅｅｄ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "3205", "name": "㈱ダイドーリミテッド", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "4425", "name": "Ｋｕｄａｎ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "6522", "name": "㈱アスタリスク", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigenkaizyo.pdf", "code": "9130", "name": "共栄タンカー㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigen.pdf", "code": "4465", "name": "㈱ニイタカ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigen.pdf", "code": "2676", "name": "高千穂交易㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigen.pdf", "code": "3678", "name": "㈱メディアドゥ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigen.pdf", "code": "7600", "name": "㈱日本エム・ディ・エム", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-18", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/18）", "docUrl": "https://www.taisyaku.jp/media/20260518_seigen.pdf", "code": "7746", "name": "岡本硝子㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_mashitanpo.pdf", "code": "281A", "name": "インフォメティス㈱", "note": "東京、PTS / 30% ｜ 増担保の解除", "section": "", "category": "増担保解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf", "code": "4440", "name": "㈱ヴィッツ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf", "code": "5491", "name": "日本金属㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf", "code": "6278", "name": "ユニオンツール㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf", "code": "7378", "name": "㈱アシロ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf", "code": "8835", "name": "太平洋興発㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf", "code": "3444", "name": "㈱菊池製作所", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigenkaizyo.pdf", "code": "5381", "name": "マイポックス㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "2211", "name": "㈱不二家", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "2489", "name": "㈱アドウェイズ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "3796", "name": "㈱いい生活", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "3900", "name": "㈱クラウドワークス", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "3984", "name": "㈱ユーザーローカル", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "4165", "name": "㈱プレイド", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "7600", "name": "㈱日本エム・ディ・エム", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "180A", "name": "グローバルＸ 超長期米国債 ETF", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "1909", "name": "日本ドライケミカル㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "6096", "name": "㈱レアジョブ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "6262", "name": "㈱ＰＥＧＡＳＵＳ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "7035", "name": "ａｎｄ ｆａｃｔｏｒｙ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "7879", "name": "㈱ノダ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-15", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/15）", "docUrl": "https://www.taisyaku.jp/media/20260515_seigen.pdf", "code": "8141", "name": "新光商事㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-14", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/14）", "docUrl": "https://www.taisyaku.jp/media/20260514_seigenkaizyo.pdf", "code": "8614", "name": "東洋証券㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-14", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/14）", "docUrl": "https://www.taisyaku.jp/media/20260514_seigenkaizyo.pdf", "code": "3544", "name": "サツドラホールディングス㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-14", "month": "2026-05", "docTitle": "貸借取引の申込停止措置の実施について（5/14）", "docUrl": "https://www.taisyaku.jp/media/20260514_gobatei.pdf", "code": "543A", "name": "ARCHION㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigenkaizyo.pdf", "code": "215A", "name": "㈱タイミー", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigenkaizyo.pdf", "code": "4676", "name": "㈱フジ・メディア・ホールディングス", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigenkaizyo.pdf", "code": "6629", "name": "テクノホライゾン㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigenkaizyo.pdf", "code": "9227", "name": "マイクロ波化学㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigenkaizyo.pdf", "code": "3294", "name": "㈱イーグランド", "note": "ロ / イ", "section": "", "category": "売り禁解除"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigen.pdf", "code": "2168", "name": "㈱パソナグループ", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigen.pdf", "code": "543A", "name": "ARCHION㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigen.pdf", "code": "2497", "name": "ユナイテッド㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigen.pdf", "code": "3645", "name": "㈱メディカルネット", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigen.pdf", "code": "4367", "name": "広栄化学㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigen.pdf", "code": "6038", "name": "㈱イード", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-13", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/13）", "docUrl": "https://www.taisyaku.jp/media/20260513_seigen.pdf", "code": "6197", "name": "㈱ソラスト", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-12", "month": "2026-05", "docTitle": "貸借取引銘柄別増担保金徴収措置の実施等について（5/12）", "docUrl": "https://www.taisyaku.jp/media/20260512_mashitanpo.pdf", "code": "3936", "name": "㈱グローバルウェイ", "note": "東京、PTS / 30% ｜ 増担保の解除", "section": "", "category": "増担保解除"}, {"date": "2026-05-12", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/12）", "docUrl": "https://www.taisyaku.jp/media/20260512_seigen.pdf", "code": "5074", "name": "テスホールディングス㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-12", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/12）", "docUrl": "https://www.taisyaku.jp/media/20260512_seigen.pdf", "code": "6038", "name": "㈱イード", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-12", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/12）", "docUrl": "https://www.taisyaku.jp/media/20260512_seigen.pdf", "code": "2371", "name": "㈱カカクコム", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-12", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/12）", "docUrl": "https://www.taisyaku.jp/media/20260512_seigen.pdf", "code": "4392", "name": "ＦＩＧ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigen2.pdf", "code": "8283", "name": "㈱ＰＡＬＴＡＣ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigenkaizyo.pdf", "code": "3134", "name": "Ｈａｍｅｅ㈱", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigenkaizyo.pdf", "code": "3903", "name": "㈱ｇｕｍｉ", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の解除等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigenkaizyo.pdf", "code": "7236", "name": "㈱ティラド", "note": "", "section": "", "category": "売り禁解除"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigen.pdf", "code": "3501", "name": "ＳＵＭＩＮＯＥ㈱", "note": "", "section": "", "category": "売り禁実施"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigen.pdf", "code": "1545", "name": "ＮＥＸＴ ＦＵＮＤＳ ＮＡＳＤＡＱ－１００Ⓡ（為替ヘッジなし）連動型上場投信", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigen.pdf", "code": "3686", "name": "㈱ディー・エル・イー", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigen.pdf", "code": "4446", "name": "Ｌｉｎｋ－Ｕグループ㈱", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigen.pdf", "code": "6047", "name": "㈱Ｇｕｎｏｓｙ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}, {"date": "2026-05-11", "month": "2026-05", "docTitle": "貸借取引の銘柄別制限措置の実施等について（5/11）", "docUrl": "https://www.taisyaku.jp/media/20260511_seigen.pdf", "code": "6264", "name": "㈱マルマエ", "note": "イ、ロ", "section": "", "category": "売り禁実施"}];
+
+  var CAT_CLASS = {
+    '増担保実施': 'mashitan-on',
+    '増担保解除': 'mashitan-off',
+    '売り禁実施': 'urikin-on',
+    '売り禁解除': 'urikin-off'
+  };
+
+  var activeMonth = '';
+  var activeFilter = '';
+  var activeCode = '';
+
+  // ---- Month tabs ----
+  document.getElementById('monthTabs').addEventListener('click', function(e) {
+    var btn = e.target.closest('.tab');
+    if (!btn) return;
+    activeMonth = btn.dataset.month;
+    document.querySelectorAll('.tab').forEach(function(b) {
+      b.classList.toggle('active', b === btn);
+    });
+    clearSearchState();
+    applyView();
   });
-  document.querySelectorAll('.day').forEach(d => {
-    let el = d.nextElementSibling, visible = false;
-    while (el && !el.classList.contains('day')) {
-      if (el.classList.contains('card') && !el.classList.contains('hidden')) visible = true;
-      el = el.nextElementSibling;
+
+  // ---- Code search ----
+  document.getElementById('codeSearch').addEventListener('input', function() {
+    activeCode = this.value.trim();
+    activeFilter = '';
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    applyView();
+  });
+
+  // ---- Filter buttons ----
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var cat = this.dataset.cat;
+      if (activeFilter === cat) {
+        activeFilter = '';
+        this.classList.remove('active');
+      } else {
+        activeFilter = cat;
+        document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        activeCode = '';
+        document.getElementById('codeSearch').value = '';
+      }
+      applyView();
+    });
+  });
+
+  // ---- Clear button ----
+  document.getElementById('clearBtn').addEventListener('click', function() {
+    clearSearchState();
+    applyView();
+  });
+
+  function clearSearchState() {
+    activeFilter = '';
+    activeCode = '';
+    document.getElementById('codeSearch').value = '';
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  }
+
+  function applyView() {
+    if (activeFilter) {
+      showFilterResult(activeFilter);
+    } else if (activeCode.length >= 2) {
+      showCodeResult(activeCode);
+    } else {
+      showCardView();
     }
-    d.classList.toggle('hidden', !visible);
-  });
-});
+  }
+
+  function showCardView() {
+    document.getElementById('resultView').classList.add('hidden');
+    document.getElementById('list').classList.remove('hidden');
+    document.querySelectorAll('.card').forEach(function(c) {
+      c.classList.toggle('hidden', !!activeMonth && c.dataset.month !== activeMonth);
+    });
+    document.querySelectorAll('.day').forEach(function(d) {
+      d.classList.toggle('hidden', !!activeMonth && d.dataset.month !== activeMonth);
+    });
+  }
+
+  function showCodeResult(code) {
+    var q = code.toLowerCase();
+    var results = ALL_STOCKS.filter(function(s) {
+      return (s.code && s.code.toLowerCase().indexOf(q) === 0) ||
+             (s.name && s.name.indexOf(code) !== -1);
+    });
+    if (!results.length) {
+      renderResult('コード「' + esc(code) + '」の規制履歴', '<p class="no-result">該当するデータがありません</p>');
+      return;
+    }
+    var rows = results.map(function(s) {
+      var cc = CAT_CLASS[s.category] || 'other';
+      return '<tr>' +
+        '<td style="white-space:nowrap">' + esc(s.date) + '</td>' +
+        '<td class="code">' + esc(s.code) + '</td>' +
+        '<td>' + esc(s.name) + '</td>' +
+        '<td><span class="cat-chip cat-' + cc + '">' + esc(s.category) + '</span></td>' +
+        '<td style="font-size:.8rem;color:#5b6b7f">' + esc(s.section || '') + '</td>' +
+        '<td style="font-size:.8rem">' + esc(s.note || '') + '</td>' +
+        '<td><a href="' + esc(s.docUrl) + '" target="_blank" rel="noopener">PDF</a></td>' +
+        '</tr>';
+    }).join('');
+    renderResult(
+      'コード「' + esc(code) + '」の規制履歴（' + results.length + '件）',
+      '<table><tr><th>日付</th><th>コード</th><th>銘柄名</th><th>区分</th><th>セクション</th><th>補足</th><th>原本</th></tr>' + rows + '</table>'
+    );
+  }
+
+  function showFilterResult(cat) {
+    var results = ALL_STOCKS.filter(function(s) { return s.category === cat; });
+    if (!results.length) {
+      renderResult(esc(cat) + ' 一覧', '<p class="no-result">該当するデータがありません</p>');
+      return;
+    }
+    var rows = results.map(function(s) {
+      return '<tr>' +
+        '<td style="white-space:nowrap">' + esc(s.date) + '</td>' +
+        '<td class="code">' + esc(s.code) + '</td>' +
+        '<td>' + esc(s.name) + '</td>' +
+        '<td style="font-size:.8rem;color:#5b6b7f">' + esc(s.section || '') + '</td>' +
+        '<td style="font-size:.8rem">' + esc(s.note || '') + '</td>' +
+        '<td><a href="' + esc(s.docUrl) + '" target="_blank" rel="noopener">PDF</a></td>' +
+        '</tr>';
+    }).join('');
+    renderResult(
+      esc(cat) + ' 一覧（' + results.length + '件）',
+      '<table><tr><th>日付</th><th>コード</th><th>銘柄名</th><th>セクション</th><th>補足</th><th>原本</th></tr>' + rows + '</table>'
+    );
+  }
+
+  function renderResult(title, bodyHtml) {
+    document.getElementById('list').classList.add('hidden');
+    var rv = document.getElementById('resultView');
+    rv.classList.remove('hidden');
+    document.getElementById('resultHead').innerHTML =
+      '<span class="result-title">' + title + '</span>' +
+      '<button class="back-btn" id="backBtn">← 戻る</button>';
+    document.getElementById('backBtn').addEventListener('click', function() {
+      clearSearchState();
+      applyView();
+    });
+    document.getElementById('resultBody').innerHTML = bodyHtml;
+  }
+
+  function esc(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+})();
 </script>
 </body>
 </html>
