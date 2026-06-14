@@ -68,6 +68,12 @@
   }
   .filter-btn:hover { background: #c8ddf5; }
   .filter-btn.active { background: var(--accent); color: #fff; }
+  .btn-count {
+    display: inline-block; background: rgba(10,92,168,.15);
+    border-radius: 10px; padding: 0 5px; font-size: .72rem;
+    margin-left: 4px; vertical-align: 1px;
+  }
+  .filter-btn.active .btn-count { background: rgba(255,255,255,.25); }
   .clear-btn {
     background: none; border: 1px solid var(--line); color: var(--sub);
     border-radius: 20px; padding: 6px 12px; font-size: .82rem;
@@ -146,7 +152,7 @@
       <h1>日証金 貸借取引情報ダイジェスト</h1>
       <button class="reload-btn" onclick="location.href=location.pathname+'?v='+Date.now()">&#8635; 強制リロード</button>
     </div>
-    <p>日本証券金融のお知らせ（増担保金徴収措置・貸借取引規制など）のPDFを自動要約 ｜ 最終更新: 2026-06-15 01:42 JST</p>
+    <p>日本証券金融のお知らせ（増担保金徴収措置・貸借取引規制など）のPDFを自動要約 ｜ 最終更新: 2026-06-15 01:47 JST</p>
   </div>
 </header>
 
@@ -880,6 +886,16 @@
     clearSearchState();
     applyView();
   });
+
+  // ---- Count badges on filter buttons ----
+  (function() {
+    var counts = {};
+    ALL_STOCKS.forEach(function(s) { counts[s.category] = (counts[s.category] || 0) + 1; });
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+      var n = counts[btn.dataset.cat] || 0;
+      if (n > 0) btn.innerHTML += '<span class="btn-count">' + n + '</span>';
+    });
+  })();
 
   function clearSearchState() {
     activeFilter = '';

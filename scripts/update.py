@@ -358,6 +358,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }}
   .filter-btn:hover {{ background: #c8ddf5; }}
   .filter-btn.active {{ background: var(--accent); color: #fff; }}
+  .btn-count {{
+    display: inline-block; background: rgba(10,92,168,.15);
+    border-radius: 10px; padding: 0 5px; font-size: .72rem;
+    margin-left: 4px; vertical-align: 1px;
+  }}
+  .filter-btn.active .btn-count {{ background: rgba(255,255,255,.25); }}
   .clear-btn {{
     background: none; border: 1px solid var(--line); color: var(--sub);
     border-radius: 20px; padding: 6px 12px; font-size: .82rem;
@@ -547,6 +553,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     clearSearchState();
     applyView();
   }});
+
+  // ---- Count badges on filter buttons ----
+  (function() {{
+    var counts = {{}};
+    ALL_STOCKS.forEach(function(s) {{ counts[s.category] = (counts[s.category] || 0) + 1; }});
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {{
+      var n = counts[btn.dataset.cat] || 0;
+      if (n > 0) btn.innerHTML += '<span class="btn-count">' + n + '</span>';
+    }});
+  }})();
 
   function clearSearchState() {{
     activeFilter = '';
