@@ -7,7 +7,7 @@
   </defs>
   <rect width="64" height="64" rx="14" fill="url(#g)"/>
   <text x="32" y="29" font-family="'Hiragino Sans','Yu Gothic','Meiryo',sans-serif"
-        font-size="38" font-weight="700" fill="#ffffff"
-        text-anchor="middle" dominant-baseline="central">信</text>
+        font-size="40" font-weight="700" fill="#ffffff"
+        text-anchor="middle" dominant-baseline="central">貸</text>
   <rect x="14" y="47" width="36" height="3" rx="1.5" fill="#f0b932"/>
 </svg>
