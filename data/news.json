@@ -1,5 +1,28 @@
 [
  {
+  "date": "2026-08-03",
+  "label": "制限措置等",
+  "title": "貸借取引銘柄別増担保金徴収措置の実施等について（8/3）",
+  "url": "https://www.taisyaku.jp/media/20260803_mashitanpo.pdf",
+  "file_size": "103.0 KB",
+  "summary": {
+   "stocks": [
+    {
+     "code": "278A",
+     "name": "Terra Drone ㈱",
+     "note": "東京、PTS / 30% ｜ 増担保の解除"
+    }
+   ],
+   "points": [
+    "増担保の新規実施: 該当なし",
+    "増担保の変更: 該当なし",
+    "増担保の解除: Terra Drone ㈱（278A）（解除日: 2026年8月4日）"
+   ],
+   "method": "rule"
+  },
+  "processed_at": "2026-08-03T20:40:45+09:00"
+ },
+ {
   "date": "2026-07-31",
   "label": "選定関係",
   "title": "貸借取引対象銘柄の追加について（7/31）",
