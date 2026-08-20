@@ -1,5 +1,94 @@
 [
  {
+  "date": "2026-08-20",
+  "label": "その他",
+  "title": "貸借取引金利等の公表（8/20）",
+  "url": "https://www.taisyaku.jp/media/20260820_kinrihenkou.pdf",
+  "file_size": "76.0 KB",
+  "summary": {
+   "stocks": [],
+   "points": [],
+   "method": "rule"
+  },
+  "processed_at": "2026-08-20T17:53:19+09:00"
+ },
+ {
+  "date": "2026-08-20",
+  "label": "選定関係",
+  "title": "貸借取引対象銘柄の追加について（8/20）",
+  "url": "https://www.taisyaku.jp/media/20260820_sentei.pdf",
+  "file_size": "71.5 KB",
+  "summary": {
+   "stocks": [],
+   "points": [
+    "さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。",
+    "敬具記１．貸借取引対象銘柄の追加（１）貸借銘柄（東京証券取引所市場分）㈱セイワホールディングス株式（523A）（２）実施日2026年8月21日（金）（約定日）以上。"
+   ],
+   "method": "rule"
+  },
+  "processed_at": "2026-08-20T17:53:18+09:00"
+ },
+ {
+  "date": "2026-08-20",
+  "label": "選定関係",
+  "title": "貸借取引対象銘柄の追加について（8/20）",
+  "url": "https://www.taisyaku.jp/media/20260820_sentei2.pdf",
+  "file_size": "85.4 KB",
+  "summary": {
+   "stocks": [],
+   "points": [
+    "さて、今般当社は標記の件を下記のとおり実施することといたしましたので、ご通知申し上げます。"
+   ],
+   "method": "rule"
+  },
+  "processed_at": "2026-08-20T17:53:17+09:00"
+ },
+ {
+  "date": "2026-08-20",
+  "label": "制限措置等",
+  "title": "貸借取引の銘柄別制限措置の解除等について（8/20）",
+  "url": "https://www.taisyaku.jp/media/20260820_seigenkaizyo.pdf",
+  "file_size": "113.9 KB",
+  "summary": {
+   "stocks": [
+    {
+     "code": "9046",
+     "name": "神戸電鉄㈱",
+     "note": "ロ / イ"
+    }
+   ],
+   "points": [
+    "貸株利用等に関する注意喚起の取消: 該当なし",
+    "貸株利用等に関する注意喚起の通知: 該当なし",
+    "申込停止措置の一部解除（解除日（約定日）: 該当なし"
+   ],
+   "method": "rule"
+  },
+  "processed_at": "2026-08-20T17:53:16+09:00"
+ },
+ {
+  "date": "2026-08-20",
+  "label": "制限措置等",
+  "title": "貸借取引の銘柄別制限措置の実施等について（8/20）",
+  "url": "https://www.taisyaku.jp/media/20260820_seigen.pdf",
+  "file_size": "92.3 KB",
+  "summary": {
+   "stocks": [
+    {
+     "code": "8975",
+     "name": "いちごオフィスリート投資法人",
+     "note": "",
+     "section": "貸株利用等に関する注意喚起の通知"
+    }
+   ],
+   "points": [
+    "貸株利用等に関する注意喚起の通知: いちごオフィスリート投資法人（8975）"
+   ],
+   "method": "rule"
+  },
+  "processed_at": "2026-08-20T17:53:16+09:00"
+ },
+ {
   "date": "2026-08-19",
   "label": "選定関係",
   "title": "貸借取引対象銘柄の追加について（8/19）",
