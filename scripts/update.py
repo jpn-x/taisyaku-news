@@ -123,18 +123,19 @@ def mashitanpo_summary(text: str, tables: list) -> dict:
 def seigen_summary(text: str, tables: list) -> dict:
     """「銘柄別制限措置」PDF専用パーサー。テキストからセクション見出しを検出して対応付ける。"""
     flat = re.sub(r"\s+", "", text)
+    # ネスト括弧対応パターン: （実施日（約定日）:YYYY年M月D日） のような１段ネストを処理
+    _P = r"[（(](?:[^（(）)]*(?:[（(][^（(）)]*[）)])?[^）)]*)[）)]"
     heading_re = re.compile(
-        r"(?:"
-        r"貸株利用等に関する注意喚起の通知"
+        r"(?:貸株利用等に関する注意喚起の通知"
         r"|貸株利用等に関する注意喚起の取消"
         r"|融資利用等に関する注意喚起の通知"
         r"|融資利用等に関する注意喚起の取消"
-        r"|申込停止措置の実施[（(][^）)]{2,40}[）)]"
-        r"|申込停止措置の一部解除[（(][^）)]{2,40}[）)]"
-        r"|申込停止措置の解除[（(][^）)]{2,40}[）)]"
-        r"|融資停止措置の実施[（(][^）)]{2,40}[）)]"
-        r"|融資停止措置の解除[（(][^）)]{2,40}[）)]"
-        r")"
+        + r"|申込停止措置の実施" + _P
+        + r"|申込停止措置の一部解除" + _P
+        + r"|申込停止措置の解除" + _P
+        + r"|融資停止措置の実施" + _P
+        + r"|融資停止措置の解除" + _P
+        + r")"
     )
     headings = [m.group(0) for m in heading_re.finditer(flat)]
     stocks, points = [], []
@@ -158,12 +159,72 @@ def seigen_summary(text: str, tables: list) -> dict:
     return {"stocks": stocks, "points": points, "method": "rule"}
 
 
+def sentei_summary(title: str, text: str) -> dict:
+    """貸借取引対象銘柄の追加/取消 PDF 専用パーサー。選定関係。"""
+    flat = re.sub(r"\s+", "", text)
+
+    # 実施日（約定日）
+    impl_date = ""
+    dm = re.search(r"実施日[：:・]?(\d{4}年\d{1,2}月\d{1,2}日)[（(][^）)]*約定日", flat)
+    if dm:
+        impl_date = dm.group(1)
+
+    # 選定取消日（合併・株式交換など）
+    cancel_date = ""
+    cm = re.search(r"選定取消日[：:・]?(\d{4}年\d{1,2}月\d{1,2}日)", flat)
+    if cm:
+        cancel_date = cm.group(1)
+
+    date_label = impl_date or cancel_date
+
+    # 銘柄コードを（CODE）形式で検索し、直前から社名を逆引き
+    stocks: list[dict] = []
+    seen: set[str] = set()
+    for m in re.finditer(r"[（(](%s)[）)]" % CODE_PAT, flat):
+        code = m.group(1)
+        if code in seen:
+            continue
+        # 開き括弧の直前 40 文字から社名を取得
+        before = flat[max(0, m.start() - 40):m.start()]
+        # 最後の区切り文字（閉じ括弧・句読点）以降を取る
+        for ch in ("）", ")", "。", "、", "，"):
+            idx = before.rfind(ch)
+            if idx >= 0:
+                before = before[idx + 1:]
+        name = before.strip()
+        # 末尾の「株式」を除去（"XX㈱株式（CODE）" → "XX㈱"）
+        if name.endswith("株式"):
+            name = name[:-2]
+        # 数字のみ・空・長すぎは除外
+        if len(name) < 2 or re.fullmatch(r"[0-9０-９一二三四五六七八九十百]+", name):
+            continue
+        seen.add(code)
+        stocks.append({"code": code, "name": name, "note": date_label})
+
+    action = ("追加" if "追加" in title else
+              "取消" if "取消" in title or "取消し" in title else "変更")
+    points: list[str] = []
+    if date_label:
+        kind = "実施日" if impl_date else "取消日"
+        points.append(f"{kind}: {date_label}")
+    if stocks:
+        names = "、".join(f"{s['name']}（{s['code']}）" for s in stocks[:5])
+        if len(stocks) > 5:
+            names += f" ほか{len(stocks) - 5}銘柄"
+        points.append(f"貸借銘柄{action}: {names}")
+    return {"stocks": stocks, "points": points, "method": "rule"}
+
+
 def rule_based_summary(title: str, text: str, tables: list) -> dict:
     """APIキーなしでも動くフォールバック要約。"""
     if "増担保金徴収措置の実施等" in title and len(tables) >= 3:
         return mashitanpo_summary(text, tables)
     if "銘柄別制限措置" in title and tables:
         return seigen_summary(text, tables)
+    if "貸借取引対象銘柄" in title:
+        result = sentei_summary(title, text)
+        if result["stocks"] or result["points"]:
+            return result
 
     stocks, seen_codes = [], set()
 
