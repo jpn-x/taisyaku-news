@@ -2,10 +2,8 @@ name: Update digest
 
 on:
   schedule:
-    # JST 17:15 / 19:15（平日）と JST 翌朝 07:15
-    - cron: '15 8 * * 1-5'
-    - cron: '15 10 * * 1-5'
-    - cron: '15 22 * * 0-4'
+    # JST 19:00（毎日、土日も含む）
+    - cron: '0 10 * * *'
   workflow_dispatch:
 
 permissions:
