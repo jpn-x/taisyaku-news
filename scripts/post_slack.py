@@ -15,7 +15,7 @@ JST = timezone(timedelta(hours=9))
 ROOT = Path(__file__).resolve().parent.parent
 DATA_FILE = ROOT / "data" / "news.json"
 POSTED_FILE = ROOT / "data" / "slack_posted.json"
-SITE_URL = "https://jpn-x.github.io/taisyaku-news/"
+SITE_URL = "https://taisyaku-news.cadillac600.workers.dev/"
 
 
 def esc(s: str) -> str:
