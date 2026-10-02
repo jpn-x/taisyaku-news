@@ -4,7 +4,7 @@
 増担保金徴収措置・貸借取引規制などのPDFを自動で読み込み、
 コード番号・銘柄名・内容の要点をペライチでまとめる非公式サイト。
 
-公開ページ: https://taisyaku-news.cadillac600.workers.dev/
+公開ページ: https://taisyaku-news.jp-x.workers.dev/
 
 ## 仕組み
 
